@@ -1,21 +1,26 @@
 import { useEffect, useState } from "react";
-import { initPyodide } from "./pyodide-loader";
+// import { usePyodide } from './components/PyodideProvider';
+
+import { PyodideProvider } from './components/PyodideProvider';
+import FileExplorer from './components/FileExplorer';
+
+
+// import { initPyodide } from "./pyodide-loader";
 
 function App() {
-  const [text, setText] = useState("Loading...");
+  // const [text, setText] = useState("Loading...");
+  // const { pyodide, reloadPackage, loading } = usePyodide();
 
-  useEffect(() => {
-    (async () => {
-      const pyodide = await initPyodide();
-      await pyodide.runPythonAsync(`
-        #from ilovepdfpy.tools.extract import extract_text
-        result = "PDF tool loaded!"
-      `);
-      setText(pyodide.globals.get("result"));
-    })();
-  }, []);
+  return (
+    <PyodideProvider>
+      <div>
+        <h1>Pyodide File Explorer</h1>
+        <FileExplorer path="." />
+      </div>
+    </PyodideProvider>
+  );
 
-  return <div><pre>{text}</pre></div>;
+  // return <div><pre>{loading ? 'Loading...' : 'Reload Package'}</pre></div>;
 }
 
 export default App;
