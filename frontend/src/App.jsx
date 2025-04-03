@@ -3,7 +3,9 @@ import FileExplorer from './components/FileExplorer';
 import ExtractImages from './components/ExtractImages';
 import ExtractMetaData from './components/ExtractMetaData';
 import { BrowserRouter, HashRouter, Routes, Route, Outlet, Link } from "react-router";
-import MetadataExtractor from "./components/MetadataExtractor";
+import MetadataEditor from "./components/MetadataEditor";
+import Split from "./components/Split";
+import Merge from "./components/Merge";
 
 
 // Persistent Navbar Component (always on the left)
@@ -13,8 +15,10 @@ const Navbar = () => (
     <ul>
       <li><Link to="/">Home</Link></li>
       <li><Link to="extract-images">Extract Images</Link></li>
-      <li><Link to="extract-metadata">Extract Metadata</Link></li>
-      <li><Link to="contact">Contact</Link></li>
+      <li><Link to="metadata">Edit Metadata</Link></li>
+      <li><Link to="split">Split</Link></li>
+      <li><Link to="merge">Merge</Link></li>
+
     </ul>
   </div>
 );
@@ -62,7 +66,9 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="extract-images" element={<ExtractImages />} />
-          <Route path="extract-metadata" element={<MetadataExtractor />} />
+          <Route path="metadata" element={<MetadataEditor />} />
+          <Route path="split" element={<Split />} />
+          <Route path="merge" element={<Merge />} />
         </Route>
       </Routes>
     </HashRouter>

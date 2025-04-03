@@ -13,7 +13,7 @@ const FileInput = forwardRef(({
     const handleFileChange = (e) => {
         const selectedFiles = Array.from(e.target.files).map(file => ({
             file,
-            pageRange: ''
+            pageRange: {}
         }));
 
         if (allowMultiple) {
@@ -29,14 +29,19 @@ const FileInput = forwardRef(({
 
     // Expose both file references and page ranges to the parent via the ref
     useImperativeHandle(ref, () => ({
-        getFilesWithPageRanges: () => files,
+        getFilesWithPageRanges: () => {
+            return files.map(({ file, pageRange }) => {
+                const { start, end } = pageRange || {};
+                return { file, pageRange: start != null && end != null ? [start - 1, end - 1] : null }; // Convert to zero-based
+            });
+        },
     }));
 
     // Helper to update page range for a file
-    const handlePageRangeChange = (index, value) => {
+    const handlePageRangeChange = (index, field, value) => {
         setFiles(prevFiles =>
             prevFiles.map((item, i) =>
-                i === index ? { ...item, pageRange: value } : item
+                i === index ? { ...item, pageRange: { ...item.pageRange, [field]: value } } : item
             )
         );
     };
@@ -74,13 +79,22 @@ const FileInput = forwardRef(({
                             </span>
                         )}
                         {enablePageRange && (
-                            <input
-                                type="text"
-                                placeholder="Page range (e.g. 1-5)"
-                                value={item.pageRange}
-                                onChange={(e) => handlePageRangeChange(index, e.target.value)}
-                                style={{ marginLeft: '1rem' }}
-                            />
+                            <span style={{ marginLeft: '1rem' }}>
+                                <input
+                                    type="number"
+                                    placeholder="Start"
+                                    value={item.pageRange?.start || ''}
+                                    onChange={(e) => handlePageRangeChange(index, 'start', e.target.value, 10)}
+                                    style={{ width: '60px', marginRight: '5px' }}
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="End"
+                                    value={item.pageRange?.end || ''}
+                                    onChange={(e) => handlePageRangeChange(index, 'end', e.target.value)}
+                                    style={{ width: '60px' }}
+                                />
+                            </span>
                         )}
                         {enableRemoval && (
                             <button onClick={() => handleRemove(index)} style={{ marginLeft: '1rem' }}>
