@@ -7,7 +7,7 @@ import { PyodideProvider } from "./components/PyodideProvider";
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <PyodideProvider>
-      <App />
+        <App />
     </PyodideProvider>
   </StrictMode>,
 )

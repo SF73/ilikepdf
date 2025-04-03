@@ -1,26 +1,73 @@
 import { useEffect, useState } from "react";
-// import { usePyodide } from './components/PyodideProvider';
-
-import { PyodideProvider } from './components/PyodideProvider';
 import FileExplorer from './components/FileExplorer';
+import ExtractImages from './components/ExtractImages';
+import ExtractMetaData from './components/ExtractMetaData';
+import { BrowserRouter, HashRouter, Routes, Route, Outlet, Link } from "react-router";
+import MetadataExtractor from "./components/MetadataExtractor";
 
 
-// import { initPyodide } from "./pyodide-loader";
+// Persistent Navbar Component (always on the left)
+const Navbar = () => (
+  <div style={{ width: "200px", backgroundColor: "#f0f0f0", padding: "1rem" }}>
+    <h3>Navbar</h3>
+    <ul>
+      <li><Link to="/">Home</Link></li>
+      <li><Link to="extract-images">Extract Images</Link></li>
+      <li><Link to="extract-metadata">Extract Metadata</Link></li>
+      <li><Link to="contact">Contact</Link></li>
+    </ul>
+  </div>
+);
+
+// Sample Pages
+const Home = () => (
+  <div>
+    <h2>Home Page</h2>
+    <p>Welcome to the home page!</p>
+  </div>
+);
+
+const About = () => (
+  <div>
+    <h2>About Page</h2>
+    <p>Learn more about us on this page.</p>
+  </div>
+);
+
+const Contact = () => (
+  <div>
+    <h2>Contact Page</h2>
+    <p>Get in touch with us.</p>
+  </div>
+);
+
+// Layout component that always displays Navbar and CustomComponent
+const Layout = () => (
+  <div style={{ display: "flex", minHeight: "100vh" }}>
+    <Navbar />
+    <div style={{ flex: 1, padding: "1rem" }}>
+      <Outlet />
+    </div>
+    {/* <FileExplorer /> */}
+  </div>
+);
+
+
 
 function App() {
-  // const [text, setText] = useState("Loading...");
-  // const { pyodide, reloadPackage, loading } = usePyodide();
 
   return (
-    <PyodideProvider>
-      <div>
-        <h1>Pyodide File Explorer</h1>
-        <FileExplorer path="." />
-      </div>
-    </PyodideProvider>
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="extract-images" element={<ExtractImages />} />
+          <Route path="extract-metadata" element={<MetadataExtractor />} />
+        </Route>
+      </Routes>
+    </HashRouter>
   );
 
-  // return <div><pre>{loading ? 'Loading...' : 'Reload Package'}</pre></div>;
 }
 
 export default App;

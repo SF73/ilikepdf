@@ -18,7 +18,7 @@ export const PyodideProvider = ({ children }) => {
   useEffect(() => {
     async function initPyodide() {
       // Load Pyodide from the CDN
-
+      
       let pyodideInstance = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.4/full/" });
       console.log("Pyodide loaded");
       console.log(pyodideInstance.FS);
@@ -27,11 +27,11 @@ export const PyodideProvider = ({ children }) => {
       await pyodideInstance.loadPackage("micropip");
 
       const micropip = pyodideInstance.pyimport("micropip");
-      await micropip.install(`${window.location.origin}/pyodide_packages/pymupdf-1.25.3-cp312-abi3-pyodide_2024_0_wasm32.whl`);
-      await micropip.install(`${window.location.origin}/pyodide_packages/ilikepdfpy-0.1-py3-none-any.whl`);
+      await micropip.install(`${window.location.origin}/pyodide_packages/pymupdf-1.25.5-cp312-abi3-pyodide_2024_0_wasm32.whl`);
+      // await micropip.install(`${window.location.origin}/pyodide_packages/ilikepdfpy-0.1-py3-none-any.whl`);
       
       // Import your package
-      let importedPkg = pyodideInstance.pyimport("ilikepdfpy");
+      let importedPkg = pyodideInstance.pyimport("pymupdf");
       console.log(importedPkg.__version__);
 
       // Update state and mark loading as done
