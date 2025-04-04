@@ -35,24 +35,28 @@ const ExtractImages = () => {
           }
           processedXrefs.add(xref);
 
-          const imgDict = doc.extract_image(xref).toJs({ dict_converter: Object.fromEntries });
-          if (!imgDict) continue;
-          console.log(imgDict);
-          const imageData = imgDict.image;
-          const ext = imgDict.ext || 'png';
-
           if (ignoreSmask || smask === 0) {
             // Extract image directly
+
+            const imgDict = doc.extract_image(xref).toJs({ dict_converter: Object.fromEntries });
+            if (!imgDict) continue;
+            const imageData = imgDict.image;
+            const ext = imgDict.ext || 'png';
+
             const blob = new Blob([imageData], { type: `image/${ext}` });
             const url = URL.createObjectURL(blob);
             extractedImages.push({ url, name: `page_${pageIndex + 1}_img_${xref}.${ext}` });
           } else {
             // Handle soft mask
-            const maskDict = doc.extract_image(smask).toJs({ dict_converter: Object.fromEntries });
-            if (!maskDict) continue;
+            const pixmap = mypkg.Pixmap(doc, xref); // Create a Pixmap for the base image
+            const maskPixmap = mypkg.Pixmap(doc, smask); // Create a Pixmap for the mask
+        
+            // Combine the base image and mask
+            const combinedPixmap = mypkg.Pixmap(pixmap, maskPixmap);
+            // // Convert the combined Pixmap to a Blob
+            const combinedBuffer = combinedPixmap.tobytes(); // Write the combined Pixmap to a buffer
+            const combinedBlob =  new Blob([combinedBuffer.toJs()], { type: `image/png` });
 
-            const maskData = maskDict.image;
-            const combinedBlob = combineImageAndMask(imageData, maskData, ext);
             const combinedUrl = URL.createObjectURL(combinedBlob);
             extractedImages.push({ url: combinedUrl, name: `page_${pageIndex + 1}_img_${xref}_combined.png` });
           }
@@ -67,27 +71,10 @@ const ExtractImages = () => {
     }
   };
 
-  const combineImageAndMask = (imageData, maskData, ext) => {
-    console.log(pyodide.toPy(imageData));
-    console.log(maskData);
-    const pixmap = new mypkg.Pixmap(pyodide.toPy(imageData)); // Create a Pixmap for the base image
-    const maskPixmap = new mypkg.Pixmap(pyodide.toPy(maskData)); // Create a Pixmap for the mask
-
-    console.log(pixmap.size); 
-    console.log(maskPixmap.size);
-    // Combine the base image and mask
-    const combinedPixmap = new mypkg.Pixmap(pixmap, maskPixmap);
-    console.log(combinedPixmap);
-    // Convert the combined Pixmap to a Blob
-    const combinedBuffer = combinedPixmap.tobytes.call(); // Write the combined Pixmap to a buffer
-    console.log(combinedBuffer);
-    return new Blob([combinedBuffer.toJs()], { type: `image/${ext}` });
-  };
-
   return (
     <div>
       <FileInput ref={fileInputRef} enablePageRange={false} acceptedFileTypes="application/pdf" allowMultiple={false} />
-      <label style={{ display: 'block', marginTop: '10px' }}>
+      <label className='block'>
         <input
           type="checkbox"
           checked={ignoreSmask}
@@ -95,18 +82,18 @@ const ExtractImages = () => {
         />
         Ignore soft masks
       </label>
-      <button onClick={handleExtractImages} style={{ marginTop: '10px' }}>Extract Images</button>
-      <div style={{ marginTop: '10px' }}>
-        {images.map(({ url, name }, idx) => (
-          <div key={idx} style={{ marginBottom: '10px' }}>
-            <a href={url} download={name} target="_blank" rel="noopener noreferrer">
-              <img src={url} alt={name} style={{ maxWidth: '200px', maxHeight: '200px', display: 'block' }} />
-              {name}
-            </a>
-          </div>
-        ))}
+      <button onClick={handleExtractImages}>Extract Images</button>
+        <div className='grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full'>
+          {images.map(({ url, name }, idx) => (
+            <div key={idx} className='w-full'>
+              <a href={url} download={name} target="_blank" rel="noopener noreferrer">
+                <img src={url} alt={name} />
+                {name}
+              </a>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
   );
 };
 

@@ -11,10 +11,12 @@
     "update:py": "node scripts/update-python.cjs"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.2",
     "pyodide": "^0.27.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router": "^7.4.1"
+    "react-router": "^7.4.1",
+    "tailwindcss": "^4.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

@@ -10,8 +10,8 @@ import Merge from "./components/Merge";
 
 // Persistent Navbar Component (always on the left)
 const Navbar = () => (
-  <div style={{ width: "200px", backgroundColor: "#f0f0f0", padding: "1rem" }}>
-    <h3>Navbar</h3>
+  <div className="w-1/4">
+    <h3 className="text-3xl font-bold underline">Navbar</h3>
     <ul>
       <li><Link to="/">Home</Link></li>
       <li><Link to="extract-images">Extract Images</Link></li>
@@ -47,9 +47,9 @@ const Contact = () => (
 
 // Layout component that always displays Navbar and CustomComponent
 const Layout = () => (
-  <div style={{ display: "flex", minHeight: "100vh" }}>
+  <div className="flex min-h-screen overflow-hidden">
     <Navbar />
-    <div style={{ flex: 1, padding: "1rem" }}>
+    <div className="flex-1 p-4 overflow-auto">
       <Outlet />
     </div>
     {/* <FileExplorer /> */}
