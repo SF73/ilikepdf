@@ -1,31 +1,32 @@
 import React, { useRef, useState } from 'react';
 import FileInput from './FileInput';
 import { usePyodide } from './PyodideProvider';
+import LoadingButton from './LoadingButton'; // Import the new button component
 
 const Merge = () => {
   const fileInputRef = useRef();
-  const { pyodide, mypkg } = usePyodide();
+  const { pyodide, pymupdf, loading } = usePyodide();
   const [mergedBlobUrl, setMergedBlobUrl] = useState(null); // State to store the merged PDF blob URL
 
   const handleMerge = async () => {
-    if (!mypkg) {
+    if (!pymupdf) {
       console.warn("Package is still loading");
       return;
     }
     if (fileInputRef.current) {
-      const filesWithRanges = fileInputRef.current.getFilesWithPageRanges(); // Get files and page ranges
-      const mergedDoc = mypkg.Document(); // Create an empty document for merging
-
+      const filesWithRanges = fileInputRef.current.getFilesWithPageRanges();
+      console.log(filesWithRanges);
+      const mergedDoc = pymupdf.Document(); 
       for (const { file, pageRange } of filesWithRanges) {
         const buffer = await file.arrayBuffer();
-        const pdfDoc = mypkg.Document.callKwargs({ stream: pyodide.toPy(buffer) });
-        const [start, end] = pageRange;
+        const pdfDoc = pymupdf.Document.callKwargs({ stream: pyodide.toPy(buffer) });
+        let [start, end] = pageRange;
 
         mergedDoc.insert_pdf.callKwargs(pdfDoc, { from_page: start, to_page: end });
         pdfDoc.close();
       }
 
-      const mergedBuffer = mergedDoc.write(); // Write the merged document
+      const mergedBuffer = mergedDoc.write();
       mergedDoc.close();
 
       // Release the previous blob URL if it exists
@@ -42,7 +43,7 @@ const Merge = () => {
   return (
     <div>
       <FileInput ref={fileInputRef} enablePageRange={true} acceptedFileTypes="application/pdf" allowMultiple={true} />
-      <button onClick={handleMerge}>Merge PDFs</button>
+      <LoadingButton className='btn' loading={loading} onClick={handleMerge}>Merge PDFs</LoadingButton>
       {mergedBlobUrl && (
         <iframe
           src={mergedBlobUrl}

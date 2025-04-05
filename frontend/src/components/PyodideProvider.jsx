@@ -11,7 +11,7 @@ export const usePyodide = () => useContext(PyodideContext);
 // Provider component
 export const PyodideProvider = ({ children }) => {
   const [pyodide, setPyodide] = useState(null);
-  const [mypkg, setMypkg] = useState(null);
+  const [pymupdf, setPymupdf] = useState(null);
   const [loading, setLoading] = useState(true);
 
 
@@ -36,7 +36,7 @@ export const PyodideProvider = ({ children }) => {
 
       // Update state and mark loading as done
       setPyodide(pyodideInstance);
-      setMypkg(importedPkg);
+      setPymupdf(importedPkg);
       setLoading(false);
     }
     initPyodide();
@@ -67,14 +67,14 @@ export const PyodideProvider = ({ children }) => {
 
       let importedPkg = pyodide.pyimport("ilikepdfpy");
       
-      setMypkg(importedPkg);
+      setPymupdf(importedPkg);
       setLoading(false);
     }
   };
 
 
   return (
-    <PyodideContext.Provider value={{ pyodide, mypkg, loading, reloadPackage }}>
+    <PyodideContext.Provider value={{ pyodide, pymupdf, loading, reloadPackage }}>
       {children}
     </PyodideContext.Provider>
   );

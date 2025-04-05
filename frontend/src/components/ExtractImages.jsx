@@ -1,22 +1,23 @@
 import React, { useRef, useState } from 'react';
 import FileInput from './FileInput';
 import { usePyodide } from './PyodideProvider';
+import LoadingButton from './LoadingButton';
 
 const ExtractImages = () => {
   const fileInputRef = useRef();
-  const { pyodide, mypkg } = usePyodide();
+  const { pyodide, loading, pymupdf } = usePyodide();
   const [images, setImages] = useState([]); // State to store extracted images
   const [ignoreSmask, setIgnoreSmask] = useState(false); // State to toggle ignoring soft masks
 
   const handleExtractImages = async () => {
-    if (!mypkg) {
+    if (!pymupdf) {
       console.warn("Package is still loading");
       return;
     }
     if (fileInputRef.current) {
       const { file } = fileInputRef.current.getFilesWithPageRanges()[0]; // Single file
       const buffer = await file.arrayBuffer();
-      const doc = mypkg.Document.callKwargs({ stream: pyodide.toPy(buffer) });
+      const doc = pymupdf.Document.callKwargs({ stream: pyodide.toPy(buffer) });
 
       const extractedImages = [];
       const processedXrefs = new Set(); // Track processed xrefs to avoid duplicates
@@ -48,11 +49,11 @@ const ExtractImages = () => {
             extractedImages.push({ url, name: `page_${pageIndex + 1}_img_${xref}.${ext}` });
           } else {
             // Handle soft mask
-            const pixmap = mypkg.Pixmap(doc, xref); // Create a Pixmap for the base image
-            const maskPixmap = mypkg.Pixmap(doc, smask); // Create a Pixmap for the mask
+            const pixmap = pymupdf.Pixmap(doc, xref); // Create a Pixmap for the base image
+            const maskPixmap = pymupdf.Pixmap(doc, smask); // Create a Pixmap for the mask
         
             // Combine the base image and mask
-            const combinedPixmap = mypkg.Pixmap(pixmap, maskPixmap);
+            const combinedPixmap = pymupdf.Pixmap(pixmap, maskPixmap);
             // // Convert the combined Pixmap to a Blob
             const combinedBuffer = combinedPixmap.tobytes(); // Write the combined Pixmap to a buffer
             const combinedBlob =  new Blob([combinedBuffer.toJs()], { type: `image/png` });
@@ -82,13 +83,13 @@ const ExtractImages = () => {
         />
         Ignore soft masks
       </label>
-      <button onClick={handleExtractImages}>Extract Images</button>
+      <LoadingButton loading={loading} className='btn' onClick={handleExtractImages}>Extract Images</LoadingButton>
         <div className='grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full'>
           {images.map(({ url, name }, idx) => (
             <div key={idx} className='w-full'>
               <a href={url} download={name} target="_blank" rel="noopener noreferrer">
                 <img src={url} alt={name} />
-                {name}
+                <p className='text-sm truncate'>{name}</p>
               </a>
             </div>
           ))}

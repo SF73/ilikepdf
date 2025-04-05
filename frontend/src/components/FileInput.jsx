@@ -32,7 +32,7 @@ const FileInput = forwardRef(({
         getFilesWithPageRanges: () => {
             return files.map(({ file, pageRange }) => {
                 const { start, end } = pageRange || {};
-                return { file, pageRange: start != null && end != null ? [start - 1, end - 1] : null }; // Convert to zero-based
+                return { file, pageRange: start != null || end != null ? [start != null ? start - 1 : null, end != null ? end - 1 : null] : null };
             });
         },
     }));
@@ -61,43 +61,52 @@ const FileInput = forwardRef(({
 
     return (
         <div>
-            <input ref={fileInputRef} type="file" accept={acceptedFileTypes} {...(allowMultiple ? { multiple: true } : {})} onChange={handleFileChange} />
-            <ul>
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept={acceptedFileTypes}
+                {...(allowMultiple ? { multiple: true } : {})}
+                onChange={handleFileChange}
+                className="block w-full file:px-2 file:py-2 file:bg-slate-100 hover:file:bg-slate-200 rounded-lg cursor-pointer"
+            />
+            <ul className='mt-4'>
                 {files.map((item, index) => (
-                    <li key={index} style={{ marginBottom: '1rem' }}>
-                        <span>{item.file.name}</span>
+                    <li key={index} className="flex items-center justify-between space-x-4">
+                        <span className='flex-1'>{item.file.name}</span>
                         {enableSorting && (
-                            <span style={{ marginLeft: '1rem' }}>
+                            <span className="flex w-20">
                                 {index > 0 && (
-                                    <button onClick={() => handleSort(index, index - 1)}>&#x2191;</button>
+                                    <button className='btn rounded-none rounded-s size-10 me-auto' onClick={() => handleSort(index, index - 1)}>
+                                        &#x2191; {/* Up arrow */}
+                                    </button>
                                 )}
                                 {index < files.length - 1 && (
-                                    <button onClick={() => handleSort(index, index + 1)} style={{ marginLeft: '0.5rem' }}>
-                                        &#x2193;
+                                    <button className='btn rounded-none rounded-e size-10 ms-auto' onClick={() => handleSort(index, index + 1)}>
+                                        &#x2193; {/* Down arrow */}
                                     </button>
                                 )}
                             </span>
                         )}
                         {enablePageRange && (
-                            <span style={{ marginLeft: '1rem' }}>
+                            <span className="flex space-x-2">
                                 <input
                                     type="number"
                                     placeholder="Start"
                                     value={item.pageRange?.start || ''}
                                     onChange={(e) => handlePageRangeChange(index, 'start', e.target.value, 10)}
-                                    style={{ width: '60px', marginRight: '5px' }}
+                                    className="w-16 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-300"
                                 />
                                 <input
                                     type="number"
                                     placeholder="End"
                                     value={item.pageRange?.end || ''}
                                     onChange={(e) => handlePageRangeChange(index, 'end', e.target.value)}
-                                    style={{ width: '60px' }}
+                                    className="w-16 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-300"
                                 />
                             </span>
                         )}
                         {enableRemoval && (
-                            <button onClick={() => handleRemove(index)} style={{ marginLeft: '1rem' }}>
+                            <button className='rounded size-10 p-1 hover:bg-red-100' onClick={() => handleRemove(index)}>
                                 &#128465;
                             </button>
                         )}

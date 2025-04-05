@@ -1,28 +1,30 @@
 import React, { useRef, useState } from 'react';
 import FileInput from './FileInput';
 import { usePyodide } from './PyodideProvider';
+import LoadingButton from './LoadingButton'; 
+
 
 const Split = () => {
   const fileInputRef = useRef();
-  const { pyodide, mypkg } = usePyodide();
+  const { pyodide, loading, pymupdf } = usePyodide();
   const [blobUrls, setBlobUrls] = useState([]); // State to store blob URLs for split PDFs
   const [activeSplit, setActiveSplit] = useState(null); // State to track the active split for iframe
 
   const handleSplit = async () => {
-    if (!mypkg) {
+    if (!pymupdf) {
       console.warn("Package is still loading");
       return;
     }
     if (fileInputRef.current) {
       const { file } = fileInputRef.current.getFilesWithPageRanges()[0]; // Single file
       const buffer = await file.arrayBuffer();
-      const doc = mypkg.Document.callKwargs({ stream: pyodide.toPy(buffer) });
+      const doc = pymupdf.Document.callKwargs({ stream: pyodide.toPy(buffer) });
 
       const splits = JSON.parse(document.getElementById("splitsInput").value); // Get splits from input
       const splitBlobs = [];
 
       splits.forEach(([start, end], idx) => {
-        const newDoc = mypkg.Document();
+        const newDoc = pymupdf.Document();
         newDoc.insert_pdf.callKwargs(doc, { from_page: start, to_page: end });
         const splitBuffer = newDoc.write();
         newDoc.close();
@@ -53,11 +55,11 @@ const Split = () => {
         cols="50"
         style={{ display: "block", marginTop: "10px" }}
       ></textarea>
-      <button onClick={handleSplit}>Split PDF</button>
+      <LoadingButton className='btn' loading={loading} onClick={handleSplit}>Split PDF</LoadingButton>
       <div style={{ marginTop: "10px" }}>
         {blobUrls.map(({ url, name }, idx) => (
           <div key={idx} style={{ marginBottom: "10px" }}>
-            <button onClick={() => handleViewSplit(url)}>{name}</button>
+            <button className='btn' onClick={() => handleViewSplit(url)}>{name}</button>
           </div>
         ))}
       </div>

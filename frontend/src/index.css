@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+
+@layer components {
+    .btn {
+        @apply rounded p-1 bg-slate-100 hover:bg-slate-200 cursor-pointer;
+    }
+    .btn:disabled {
+        @apply bg-slate-300 text-slate-500 cursor-not-allowed;
+    }
+}
