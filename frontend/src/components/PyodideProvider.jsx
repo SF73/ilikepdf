@@ -27,8 +27,7 @@ export const PyodideProvider = ({ children }) => {
       await pyodideInstance.loadPackage("micropip");
 
       const micropip = pyodideInstance.pyimport("micropip");
-      await micropip.install(`${window.location.origin}/pyodide_packages/pymupdf-1.25.5-cp312-abi3-pyodide_2024_0_wasm32.whl`);
-      // await micropip.install(`${window.location.origin}/pyodide_packages/ilikepdfpy-0.1-py3-none-any.whl`);
+      await micropip.install(`${window.location.origin}${import.meta.env.BASE_URL}/pyodide_packages/pymupdf-1.25.5-cp312-abi3-pyodide_2024_0_wasm32.whl`);
       
       // Import your package
       let importedPkg = pyodideInstance.pyimport("pymupdf");
