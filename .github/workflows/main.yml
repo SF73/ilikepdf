@@ -27,6 +27,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./frontend
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,8 +40,6 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - name: Change to frontend directory
-        run: cd ./frontend
       - name: Install dependencies
         run: npm ci
       - name: Build
@@ -47,7 +50,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload dist folder
-          path: './dist'
+          path: './frontend/dist'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
