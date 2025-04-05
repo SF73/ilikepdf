@@ -42,39 +42,8 @@ export const PyodideProvider = ({ children }) => {
     initPyodide();
   }, []);
 
-  const reloadPackage = async () => {
-    if (pyodide) {
-      setLoading(true);
-      await micropip.install(`${window.location.origin}/pyodide_packages/ilikepdfpy-0.1-py3-none-any.whl`);
-      let micropip = pyodide.pyimport("micropip");
-    
-      // Remove the package from Python's cache to ensure a fresh import.
-      await pyodide.runPythonAsync(`
-        import sys
-        mods_to_remove = [m for m in sys.modules if m.startswith("ilikepdfpy")]
-        for mod in mods_to_remove:
-            del sys.modules[mod]
-      `);
-
-      micropip.uninstall("ilikepdfpy");
-      await micropip.install(packageUrl);
-
-      await pyodide.runPythonAsync(`
-        from importlib import reload
-        import ilikepdfpy
-        reload(ilikepdfpy)
-      `);
-
-      let importedPkg = pyodide.pyimport("ilikepdfpy");
-      
-      setPymupdf(importedPkg);
-      setLoading(false);
-    }
-  };
-
-
   return (
-    <PyodideContext.Provider value={{ pyodide, pymupdf, loading, reloadPackage }}>
+    <PyodideContext.Provider value={{ pyodide, pymupdf, loading }}>
       {children}
     </PyodideContext.Provider>
   );
