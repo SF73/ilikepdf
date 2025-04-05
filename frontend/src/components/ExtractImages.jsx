@@ -1,74 +1,33 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import FileInput from './FileInput';
 import { usePyodide } from './PyodideProvider';
 import LoadingButton from './LoadingButton';
+import { extractImagesFromPdf } from '../utils/pymupdfUtils';
 
 const ExtractImages = () => {
   const fileInputRef = useRef();
   const { pyodide, loading, pymupdf } = usePyodide();
-  const [images, setImages] = useState([]); // State to store extracted images
-  const [ignoreSmask, setIgnoreSmask] = useState(false); // State to toggle ignoring soft masks
+  const [images, setImages] = useState([]);
+  const [ignoreSmask, setIgnoreSmask] = useState(false);
 
+  useEffect(() => {
+    return () => {
+      images.forEach(({ url }) => URL.revokeObjectURL(url));
+    };
+  }, [images]);
+  
   const handleExtractImages = async () => {
     if (!pymupdf) {
       console.warn("Package is still loading");
       return;
     }
     if (fileInputRef.current) {
-      const { file } = fileInputRef.current.getFilesWithPageRanges()[0]; // Single file
-      const buffer = await file.arrayBuffer();
-      const doc = pymupdf.Document.callKwargs({ stream: pyodide.toPy(buffer) });
-
-      const extractedImages = [];
-      const processedXrefs = new Set(); // Track processed xrefs to avoid duplicates
-
-      for (let pageIndex = 0; pageIndex < doc.page_count; pageIndex++) {
-        const page = doc.load_page(pageIndex);
-        const imageList = page.get_images({ full: true }).toJs();
-        for (const img of imageList) {
-          const xref = img[0];
-          const smask = img[1];
-
-          // Skip already processed images
-          if (processedXrefs.has(xref)) {
-            console.log(`[INFO] Skipping xref ${xref} (already extracted)`);
-            continue;
-          }
-          processedXrefs.add(xref);
-
-          if (ignoreSmask || smask === 0) {
-            // Extract image directly
-
-            const imgDict = doc.extract_image(xref).toJs({ dict_converter: Object.fromEntries });
-            if (!imgDict) continue;
-            const imageData = imgDict.image;
-            const ext = imgDict.ext || 'png';
-
-            const blob = new Blob([imageData], { type: `image/${ext}` });
-            const url = URL.createObjectURL(blob);
-            extractedImages.push({ url, name: `page_${pageIndex + 1}_img_${xref}.${ext}` });
-          } else {
-            // Handle soft mask
-            const pixmap = pymupdf.Pixmap(doc, xref); // Create a Pixmap for the base image
-            const maskPixmap = pymupdf.Pixmap(doc, smask); // Create a Pixmap for the mask
-        
-            // Combine the base image and mask
-            const combinedPixmap = pymupdf.Pixmap(pixmap, maskPixmap);
-            // // Convert the combined Pixmap to a Blob
-            const combinedBuffer = combinedPixmap.tobytes(); // Write the combined Pixmap to a buffer
-            const combinedBlob =  new Blob([combinedBuffer.toJs()], { type: `image/png` });
-
-            const combinedUrl = URL.createObjectURL(combinedBlob);
-            extractedImages.push({ url: combinedUrl, name: `page_${pageIndex + 1}_img_${xref}_combined.png` });
-          }
-        }
-      }
-
-      doc.close();
+      const { file } = fileInputRef.current.getFilesWithPageRanges()[0];
+      const extractedImages = await extractImagesFromPdf(pymupdf, pyodide, file, ignoreSmask);
 
       // Release previous image URLs
       images.forEach(({ url }) => URL.revokeObjectURL(url));
-      setImages(extractedImages); // Store new image URLs
+      setImages(extractedImages);
     }
   };
 
@@ -84,17 +43,17 @@ const ExtractImages = () => {
         Ignore soft masks
       </label>
       <LoadingButton loading={loading} className='btn' onClick={handleExtractImages}>Extract Images</LoadingButton>
-        <div className='grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full'>
-          {images.map(({ url, name }, idx) => (
-            <div key={idx} className='w-full'>
-              <a href={url} download={name} target="_blank" rel="noopener noreferrer">
-                <img src={url} alt={name} />
-                <p className='text-sm truncate'>{name}</p>
-              </a>
-            </div>
-          ))}
-        </div>
+      <div className='grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full'>
+        {images.map(({ url, name }, idx) => (
+          <div key={idx}>
+            <a href={url} download={name} target="_blank" rel="noopener noreferrer">
+              <img src={url} alt={name} style={{ maxWidth: '100%', maxHeight: '200px', objectFit: 'contain' }} />
+              <p className='text-sm truncate'>{name}</p>
+            </a>
+          </div>
+        ))}
       </div>
+    </div>
   );
 };
 

@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
 import FileInput from './FileInput';
 import { usePyodide } from './PyodideProvider';
-import LoadingButton from './LoadingButton'; 
-
+import LoadingButton from './LoadingButton';
+import { splitPdf } from '../utils/pymupdfUtils';
 
 const Split = () => {
   const fileInputRef = useRef();
@@ -16,28 +16,18 @@ const Split = () => {
       return;
     }
     if (fileInputRef.current) {
-      const { file } = fileInputRef.current.getFilesWithPageRanges()[0]; // Single file
-      const buffer = await file.arrayBuffer();
-      const doc = pymupdf.Document.callKwargs({ stream: pyodide.toPy(buffer) });
-
-      const splits = JSON.parse(document.getElementById("splitsInput").value); // Get splits from input
-      const splitBlobs = [];
-
-      splits.forEach(([start, end], idx) => {
-        const newDoc = pymupdf.Document();
-        newDoc.insert_pdf.callKwargs(doc, { from_page: start, to_page: end });
-        const splitBuffer = newDoc.write();
-        newDoc.close();
-        const splitBlob = new Blob([splitBuffer.toJs()], { type: "application/pdf" });
-        const fileName = `pages_${start + 1}-${end + 1}.pdf`; // Include page range in the file name
-        splitBlobs.push({ url: URL.createObjectURL(splitBlob), name: fileName });
-      });
-
-      doc.close();
+      const { file } = fileInputRef.current.getFilesWithPageRanges()[0];
+      const splits = JSON.parse(document.getElementById("splitsInput").value);
+      const splitBlobs = await splitPdf(pymupdf, pyodide, file, splits);
 
       // Release previous blob URLs
       blobUrls.forEach(({ url }) => URL.revokeObjectURL(url));
-      setBlobUrls(splitBlobs); // Store new blob URLs
+      setBlobUrls(
+        splitBlobs.map((blob, idx) => ({
+          url: URL.createObjectURL(blob),
+          name: `split_${idx + 1}.pdf`,
+        }))
+      );
     }
   };
 

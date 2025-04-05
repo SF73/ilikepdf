@@ -1,12 +1,19 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import FileInput from './FileInput';
 import { usePyodide } from './PyodideProvider';
-import LoadingButton from './LoadingButton'; 
+import LoadingButton from './LoadingButton';
+import { getPdfMetadata, setPdfMetadata } from '../utils/pymupdfUtils';
 
 const MetadataEditor = () => {
   const fileInputRef = useRef();
-  const { pyodide, loading,  pymupdf } = usePyodide();
-  const [blobUrl, setBlobUrl] = useState(null); // State to store the blob URL
+  const { pyodide, loading, pymupdf } = usePyodide();
+  const [blobUrl, setBlobUrl] = useState(null);
+
+  useEffect(() => {
+    return () => {
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
+  }, [blobUrl]);
 
   const handleProcessFiles = async () => {
     if (!pymupdf) {
@@ -14,14 +21,10 @@ const MetadataEditor = () => {
       return;
     }
     if (fileInputRef.current) {
-      const { file, pageRange } = fileInputRef.current.getFilesWithPageRanges()[0]; // Single file
-      const buffer = await file.arrayBuffer();
-      const doc = pymupdf.Document.callKwargs({ stream: pyodide.toPy(buffer) });
-      const metadata = doc.metadata;
-      const metadataJson = JSON.stringify(metadata.toJs({ dict_converter: Object.fromEntries }), null, 2);
-      console.log("Metadata:", metadataJson);
-      doc.close();
-      document.getElementById("output").value = metadataJson; // Set metadata in textarea
+      const { file } = fileInputRef.current.getFilesWithPageRanges()[0];
+      const metadata = await getPdfMetadata(pymupdf, pyodide, file);
+      const metadataJson = JSON.stringify(metadata, null, 2);
+      document.getElementById("output").value = metadataJson;
     }
   };
 
@@ -31,27 +34,20 @@ const MetadataEditor = () => {
       return;
     }
     if (fileInputRef.current) {
-      const { file } = fileInputRef.current.getFilesWithPageRanges()[0]; // Single file
-      const buffer = await file.arrayBuffer();
-      const doc = pymupdf.Document.callKwargs({ stream: pyodide.toPy(buffer) });
-
-      const newMetadata = JSON.parse(document.getElementById("output").value); // Get metadata from textarea
-      doc.set_metadata(pyodide.toPy(newMetadata)); // Use set_metadata to update metadata
-
-      const updatedBuffer = doc.write(); // Write updated document
-      doc.close();
+      const { file } = fileInputRef.current.getFilesWithPageRanges()[0];
+      const newMetadata = JSON.parse(document.getElementById("output").value);
+      const updatedBlob = await setPdfMetadata(pymupdf, pyodide, file, newMetadata);
 
       // Release the previous blob URL if it exists
       if (blobUrl) {
         URL.revokeObjectURL(blobUrl);
       }
 
-      const newBlob = new Blob([updatedBuffer.toJs()], { type: "application/pdf" });
-      const newBlobUrl = URL.createObjectURL(newBlob);
-      setBlobUrl(newBlobUrl); // Store the new blob URL in state
+      const newBlobUrl = URL.createObjectURL(updatedBlob);
+      setBlobUrl(newBlobUrl);
 
       const iframe = document.getElementById("pdfPreview");
-      iframe.src = newBlobUrl; // Set iframe source to the updated PDF
+      iframe.src = newBlobUrl;
     }
   };
 
