@@ -48,10 +48,9 @@ const SelectPagesWorker = () => {
 
       <textarea
         id="sequenceInput"
-        placeholder="Enter a comma-separated list of Python slices (e.g., 0, 1, 2:4, 5:10:2)"
+        placeholder={`Enter a comma-separated list of Python slices, example\n0, 1, 2:4, 5:10:2`}
         rows="5"
-        cols="50"
-        style={{ display: "block", marginTop: "10px" }}
+        className="w-full p-2 border border-gray-300 rounded-md"
       ></textarea>
 
       <LoadingButton className="btn" loading={loading} onClick={handleSelect}>

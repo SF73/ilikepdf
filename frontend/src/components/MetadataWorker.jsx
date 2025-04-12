@@ -83,9 +83,8 @@ const MetadataWorker = () => {
       </LoadingButton>
       <textarea
         id="output"
-        rows="10"
-        cols="50"
-        style={{ display: "block", marginTop: "10px" }}
+        rows="12"
+        className="w-full p-2 border border-gray-300 rounded-md"
       ></textarea>
 {blobUrl && (
   <div className="mt-4">
