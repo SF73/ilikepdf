@@ -6,8 +6,8 @@ import { PyodideProvider } from "./components/PyodideProvider";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <PyodideProvider>
+    {/* <PyodideProvider> */}
         <App />
-    </PyodideProvider>
+    {/* </PyodideProvider> */}
   </StrictMode>,
 )
