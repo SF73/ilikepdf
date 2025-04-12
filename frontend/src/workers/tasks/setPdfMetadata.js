@@ -5,7 +5,7 @@ export async function setPdfMetadata({ pymupdf, pyodide, buffer, newMetadata }) 
   
     doc.set_metadata(pyodide.toPy(newMetadata));
   
-    const updatedBuffer = doc.toBytes();
+    const updatedBuffer = doc.write();
     doc.close();
   
     return {
