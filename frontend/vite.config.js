@@ -8,4 +8,15 @@ export default defineConfig({
       tailwindcss(),
   ],
   base: '/ilikepdf/',
+  build: {
+    target: 'esnext',
+    rollupOptions: {
+      output: {
+        format: 'es'
+      }
+    }
+  },
+  worker: {
+    format: 'es'
+  }
 })
