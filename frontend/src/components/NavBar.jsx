@@ -47,6 +47,7 @@ const NavBar = () => {
         <li><NavLink onClick={() => setIsOpen(false)} className = {style} to="metadata-worker">Metadata (worker)</NavLink></li>
         <li><NavLink onClick={() => setIsOpen(false)} className = {style} to="extract-images-worker">Extract images (worker)</NavLink></li>
         <li><NavLink onClick={() => setIsOpen(false)} className = {style} to="select-pages-worker">Select pages (worker)</NavLink></li>
+        <li><NavLink onClick={() => setIsOpen(false)} className = {style} to="merge-worker">Merge documents (worker)</NavLink></li>
       </ul>
     </div>
     </>

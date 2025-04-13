@@ -6,6 +6,7 @@ import ExtractImagesWorker from './components/ExtractImagesWorker';
 import SelectPagesWorker from './components/SelectPagesWorker';
 import HomeWorker from './components/HomeWorker';
 import StatusBar from './components/StatusBar';
+import MergeWorker from './components/MergeWorker';
 
 const Layout = () => (
   <div className="flex flex-col sm:flex-row min-h-screen">
@@ -27,6 +28,7 @@ function App() {
           <Route path="metadata-worker" element={<MetadataWorker />} />
           <Route path="extract-images-worker" element={<ExtractImagesWorker />} />
           <Route path="select-pages-worker" element={<SelectPagesWorker />} />
+          <Route path="merge-worker" element={<MergeWorker />} />
         </Route>
       </Routes>
     </HashRouter>
