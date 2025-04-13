@@ -6,7 +6,9 @@ export async function selectPages({ pymupdf, pyodide, buffer, splits }) {
   });
 
   const pageSequence = parsePageRanges(splits, doc.page_count);
-
+  
+  // Convert 1-indexed pageSequence to 0-indexed for pymupdf
+  pageSequence = pageSequence.map(page => page - 1);
   doc.select(pageSequence);
   const newDocBuffer = doc.tobytes.callKwargs({deflate:true, garbage:3, use_objstms:1});
   doc.close();

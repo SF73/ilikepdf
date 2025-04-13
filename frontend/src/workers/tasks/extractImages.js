@@ -1,10 +1,10 @@
-export async function extractImages({ id, pymupdf, pyodide, buffer, ignoreSmask = false, reportProgress }) {
+export async function extractImages({ id, pymupdf, pyodide, buffer, ignoreSmask = false, pageRange, reportProgress }) {
     const doc = pymupdf.Document.callKwargs({ stream: pyodide.toPy(buffer) });
   
     const processedXrefs = new Set();
     const pageCount = doc.page_count;
-  
-    for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
+    const [pageRangeStart, pageRangeEnd] = pageRange || [0, pageCount-1];
+    for (let pageIndex = pageRangeStart; pageIndex <= pageRangeEnd; pageIndex++) {
       const page = doc.load_page(pageIndex);
       const imageList = page.get_images({ full: true }).toJs();
   
@@ -33,11 +33,11 @@ export async function extractImages({ id, pymupdf, pyodide, buffer, ignoreSmask 
           };
         }
   
-        self.postMessage({ id, status: "partial", type: "image",   data: image }, [image.buffer]);
+        self.postMessage({ id, status: "partial", data: image }, [image.buffer]);
       }
   
       if (reportProgress) {
-        reportProgress(Math.round(((pageIndex + 1) / pageCount) * 100), `Processed page ${pageIndex + 1}`);
+        reportProgress(Math.round(((pageIndex - pageRangeStart + 1) / (pageRangeEnd - pageRangeStart + 1)) * 100), `Processed page ${pageIndex + 1}`);
       }
     }
   

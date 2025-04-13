@@ -138,8 +138,8 @@ const FileInput = forwardRef(({
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
-                className={`border-2 border-dashed p-6 rounded-md text-center transition-colors cursor-pointer hover:bg-slate-200 ${dragActive ? 'bg-blue-50 border-blue-400' : 'border-gray-300'
-                    }`}
+                className={`flex flex-col justify-center items-center border-2 border-dashed rounded-md text-center transition-colors cursor-pointer 
+              hover:bg-slate-200 ${dragActive ? 'bg-blue-50 border-blue-400' : 'border-gray-300'} h-20 sm:h-40 lg:h-56 xl:h-64 p-4 sm:p-6`}
             >
                 <p className="text-gray-600 text-sm mb-2">
                     📂 Drag & drop PDF files here or click to browse
@@ -154,38 +154,39 @@ const FileInput = forwardRef(({
                     className="hidden"
                 />
             </div>
-            <div>
-                <ul className='mt-4'>
-                    {files.map((item, index) => (
-                        <li key={index} className="flex items-center justify-between space-x-4">
-                            {item.thumbnail && (
-                                <img
-                                    src={item.thumbnail}
-                                    alt="Thumbnail"
-                                    className="w-20 h-auto border rounded shadow-sm"
-                                />
-                            )}
-                            <div className='flex-1'>
-                                <div className="font-medium">{item.file.name}</div>
-                                <div className="text-sm text-gray-500">
-                                    {item.sizeLabel} • {item.pageCount || "?"} page{item.pageCount > 1 && "s"}
-                                </div></div>
-                            {enableSorting && (
-                                <div className="flex w-20">
-                                    {index > 0 && (
-                                        <button className='btn rounded-none rounded-s size-10 me-auto' onClick={() => handleSort(index, index - 1)}>
-                                            &#x2191; {/* Up arrow */}
-                                        </button>
-                                    )}
-                                    {index < files.length - 1 && (
-                                        <button className='btn rounded-none rounded-e size-10 ms-auto' onClick={() => handleSort(index, index + 1)}>
-                                            &#x2193; {/* Down arrow */}
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-                            {enablePageRange && (
-                                <span className="flex space-x-2">
+            <ul className='my-4'>
+                {files.map((item, index) => (
+                    <li key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between sm:space-x-4 space-y-2 sm:space-y-0">
+                        {item.thumbnail && (
+                            <img
+                                src={item.thumbnail}
+                                alt="Thumbnail"
+                                className="w-20 h-auto max-w-full border rounded shadow-sm"
+                            />
+                        )}
+                        <div className='flex-1'>
+                            <div className="font-medium break-words">{item.file.name}</div>
+                            <div className="text-sm text-gray-500">
+                                {item.sizeLabel} • {item.pageCount || "?"} page{item.pageCount > 1 && "s"}
+                            </div></div>
+                        {enableSorting && (
+                            <div className="flex w-20">
+                                {index > 0 && (
+                                    <button className='btn rounded-none rounded-s size-10 me-auto' onClick={() => handleSort(index, index - 1)}>
+                                        &#x2191; {/* Up arrow */}
+                                    </button>
+                                )}
+                                {index < files.length - 1 && (
+                                    <button className='btn rounded-none rounded-e size-10 ms-auto' onClick={() => handleSort(index, index + 1)}>
+                                        &#x2193; {/* Down arrow */}
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                        {enablePageRange && (
+                            <span className="flex space-x-2">
+                                <label className="flex flex-col items-start">
+                                    <span className="text-sm text-gray-600">Start</span>
                                     <input
                                         type="number"
                                         placeholder="Start"
@@ -194,6 +195,9 @@ const FileInput = forwardRef(({
                                         onChange={(e) => handlePageRangeChange(index, 'start', e.target.value, 10)}
                                         className="w-16 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-300"
                                     />
+                                </label>
+                                <label className="flex flex-col items-start">
+                                    <span className="text-sm text-gray-600">End</span>
                                     <input
                                         type="number"
                                         placeholder="End"
@@ -202,17 +206,17 @@ const FileInput = forwardRef(({
                                         onChange={(e) => handlePageRangeChange(index, 'end', e.target.value)}
                                         className="w-16 p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-300"
                                     />
-                                </span>
-                            )}
-                            {enableRemoval && (
-                                <button className='rounded size-10 p-1 hover:bg-red-100' onClick={() => handleRemove(index)}>
-                                    &#128465;
-                                </button>
-                            )}
-                        </li>
-                    ))}
-                </ul>
-            </div>
+                                </label>
+                            </span>
+                        )}
+                        {enableRemoval && (
+                            <button className='rounded size-10 p-1 hover:bg-red-100 cursor-pointer' onClick={() => handleRemove(index)}>
+                                &#128465; {/* Trash can icon */}
+                            </button>
+                        )}
+                    </li>
+                ))}
+            </ul>
         </>
     );
 });

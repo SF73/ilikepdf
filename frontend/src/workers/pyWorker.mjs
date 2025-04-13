@@ -2,7 +2,7 @@ import { loadPyodide } from 'https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodi
 import { tasks } from './tasks/index.js';
 
 
-postMessage({ status: "starting..." });
+postMessage({ status: "starting" });
 const pyodide = await loadPyodide();
 await pyodide.loadPackage("micropip");
 const match = self.location.pathname.match(/\/[^/]*\//);
@@ -20,7 +20,7 @@ onmessage = async (e) => {
   try {
     if (!tasks[type]) throw new Error(`Unknown task: ${type}`);
 
-    postMessage({ id, status: "started" });
+    postMessage({ id, status: "busy" });
 
     const reportProgress = (percent, message = "") => {
       postMessage({ id, status: "progress", percent, message });
@@ -28,7 +28,9 @@ onmessage = async (e) => {
 
     const result = await tasks[type]({ ...payload, id, reportProgress, pyodide, pymupdf });
     postMessage({ id, status: "done", result });
+    postMessage({ status: "ready" });
   } catch (error) {
     postMessage({ id, status: "error", error: error.message });
+    postMessage({ status: "ready" });
   }
 };

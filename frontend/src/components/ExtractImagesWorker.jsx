@@ -29,14 +29,13 @@ const ExtractImagesWorker = () => {
     images.forEach(({ url }) => URL.revokeObjectURL(url));
     setImages([]);
     setLoading(true);
-
-    runTask('extractImages', { buffer, ignoreSmask })
-      .onPartial(({ type, data }) => {
-        if (type === 'image') {
+    const pageRange = fileInputRef.current.getFilesWithPageRanges()[0].pageRange;
+    runTask('extractImages', { buffer, ignoreSmask, pageRange })
+      .onPartial((data) => {
+        console.log("Partial result:", data);
           const blob = new Blob([data.buffer], { type: data.mime });
           const url = URL.createObjectURL(blob);
           setImages((prev) => [...prev, { url, name: data.name }]);
-        }
       })
       .onProgress((percent, message) => {
         console.log(`Progress: ${percent}% - ${message}`);
