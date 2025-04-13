@@ -2,10 +2,11 @@ import React, { useRef, useState } from 'react';
 import FileInput from './FileInput';
 import LoadingButton from './LoadingButton';
 import { runTask } from '../utils/workerClient';
+import PdfPreviewCard from './PdfPreviewCard';
 
 const SelectPagesWorker = () => {
   const fileInputRef = useRef();
-  const [blobUrl, setBlobUrl] = useState(null);
+  const [blob, setBlob] = useState(null);
   const [blobName, setBlobName] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -18,17 +19,12 @@ const SelectPagesWorker = () => {
 
     try {
       setLoading(true);
-      if (blobUrl) URL.revokeObjectURL(blobUrl);
-
       const { buffer: newBuffer, mime } = await runTask("selectPages", {
         buffer,
         splits: sequence,
       });
 
-      const blob = new Blob([newBuffer], { type: mime });
-      const url = URL.createObjectURL(blob);
-
-      setBlobUrl(url);
+      setBlob(new Blob([newBuffer], { type: mime }));
       setBlobName(file.name);
     } catch (err) {
       console.error("Failed to select pages:", err);
@@ -57,30 +53,8 @@ const SelectPagesWorker = () => {
         Select Pages
       </LoadingButton>
 
-      {blobUrl && (
-        <div className="mt-4">
-          <a
-            href={blobUrl}
-            download={blobName}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:underline"
-          >
-            📄 Preview or Download: {blobName}
-          </a>
+      {blob && <PdfPreviewCard blob={blob} blobName={blobName} autoPreview={false} />}
 
-          <iframe
-            src={blobUrl}
-            style={{
-              width: "100%",
-              height: "500px",
-              marginTop: "10px",
-              border: "1px solid #ccc",
-            }}
-            title="New PDF"
-          ></iframe>
-        </div>
-      )}
     </div>
   );
 };

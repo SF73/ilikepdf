@@ -2,19 +2,14 @@ import React, { useRef, useState, useEffect } from 'react';
 import FileInput from './FileInput';
 import LoadingButton from './LoadingButton';
 import { runTask } from '../utils/workerClient';
+import PdfPreviewCard from './PdfPreviewCard';
 
 const MetadataWorker = () => {
   const fileInputRef = useRef();
-  const [blobUrl, setBlobUrl] = useState(null);
+  const [blob, setBlob] = useState(null);
   const [fileName, setFileName] = useState(null);
 
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    return () => {
-      if (blobUrl) URL.revokeObjectURL(blobUrl);
-    };
-  }, [blobUrl]);
 
   const handleProcessFiles = async () => {
     if (fileInputRef.current) {
@@ -42,21 +37,13 @@ const MetadataWorker = () => {
       const filename = file.name || "updated.pdf";
       try {
         setLoading(true);
-  
-        if (blobUrl) {
-          URL.revokeObjectURL(blobUrl);
-        }
-  
+
         const { buffer: updatedBuffer, mime, name } = await runTask("setPdfMetadata", {
           buffer,
           newMetadata
         });
-  
-        const blob = new Blob([updatedBuffer], { type: mime });
-        const url = URL.createObjectURL(blob);
-        
 
-        setBlobUrl(url);
+        setBlob(new Blob([updatedBuffer], { type: mime }));
         setFileName(filename);
 
       } catch (err) {
@@ -79,26 +66,14 @@ const MetadataWorker = () => {
         Get Metadata
       </LoadingButton>
       <LoadingButton className="btn" loading={loading} onClick={handleSetAndDownload}>
-        Set and Display PDF
+        Set Metadata
       </LoadingButton>
       <textarea
         id="output"
         rows="12"
-        className="w-full p-2 border border-gray-300 rounded-md"
+        className="my-4 w-full p-2 border border-gray-300 rounded-md"
       ></textarea>
-{blobUrl && (
-  <div className="mt-4">
-    <a
-      href={blobUrl}
-      download={fileName}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-blue-600 hover:underline"
-    >
-      📄 Download or Preview: {fileName}
-    </a>
-  </div>
-)}
+      {blob && <PdfPreviewCard blob={blob} blobName={fileName} autoPreview={false} />}
     </div>
   );
 };

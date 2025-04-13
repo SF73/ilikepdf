@@ -6,36 +6,73 @@ import { runTask } from '../utils/workerClient';
 
 const ExtractImagesWorker = () => {
   const fileInputRef = useRef();
-  const [images, setImages] = useState([]);
   const [ignoreSmask, setIgnoreSmask] = useState(false);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(null);
   const [progressMessage, setProgressMessage] = useState("");
+  const containerRef = useRef();
+  const blobUrls = useRef(new Set());
 
-  // Clean up old URLs when unmounting or resetting images
   useEffect(() => {
     return () => {
-      images.forEach(({ url }) => URL.revokeObjectURL(url));
+      for (const url of blobUrls.current) {
+        URL.revokeObjectURL(url);
+      }
+      blobUrls.current.clear();
+      if (containerRef.current) {
+        containerRef.current.innerHTML = "";
+      }
     };
-  }, [images]);
+  }, []);
 
   const handleExtractImages = async () => {
     if (!fileInputRef.current) return;
 
+    setLoading(true);
     const { file } = fileInputRef.current.getFilesWithPageRanges()[0];
     const buffer = await file.arrayBuffer();
 
-    // Clean up previous URLs
-    images.forEach(({ url }) => URL.revokeObjectURL(url));
-    setImages([]);
-    setLoading(true);
+    if (containerRef.current) {
+      containerRef.current.innerHTML = "";
+    }
+    for (const url of blobUrls.current) URL.revokeObjectURL(url);
+    blobUrls.current.clear();
+
     const pageRange = fileInputRef.current.getFilesWithPageRanges()[0].pageRange;
     runTask('extractImages', { buffer, ignoreSmask, pageRange })
       .onPartial((data) => {
         console.log("Partial result:", data);
-          const blob = new Blob([data.buffer], { type: data.mime });
-          const url = URL.createObjectURL(blob);
-          setImages((prev) => [...prev, { url, name: data.name }]);
+        const blob = new Blob([data.buffer], { type: data.mime });
+        const url = URL.createObjectURL(blob);
+        blobUrls.current.add(url);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = data.name;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+
+        const img = document.createElement("img");
+        img.src = url;
+        img.alt = data.name;
+        img.style.maxWidth = "100%";
+        img.style.maxHeight = "200px";
+        img.style.objectFit = "contain";
+
+        const caption = document.createElement("p");
+        caption.className = "text-sm truncate";
+        caption.textContent = data.name;
+
+        link.appendChild(img);
+        link.appendChild(caption);
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "space-y-2";
+        wrapper.appendChild(link);
+
+        containerRef.current.appendChild(wrapper);
+
+
       })
       .onProgress((percent, message) => {
         console.log(`Progress: ${percent}% - ${message}`);
@@ -47,6 +84,11 @@ const ExtractImagesWorker = () => {
         console.log("All images extracted.");
       })
       .catch((err) => {
+        if (containerRef.current) {
+          containerRef.current.innerHTML = "";
+        }
+        for (const url of blobUrls.current) URL.revokeObjectURL(url);
+        blobUrls.current.clear();
         setLoading(false);
         console.error("Extraction failed:", err);
       });
@@ -72,21 +114,8 @@ const ExtractImagesWorker = () => {
         Extract Images
       </LoadingButton>
       {progress !== null && (
-  <ProgressBar percent={progress} message={progressMessage} />)}
-      <div className='grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full'>
-        {images.map(({ url, name }, idx) => (
-          <div key={idx}>
-            <a href={url} download={name} target="_blank" rel="noopener noreferrer">
-              <img
-                src={url}
-                alt={name}
-                style={{ maxWidth: '100%', maxHeight: '200px', objectFit: 'contain' }}
-              />
-              <p className='text-sm truncate'>{name}</p>
-            </a>
-          </div>
-        ))}
-      </div>
+        <ProgressBar percent={progress} message={progressMessage} />)}
+      <div ref={containerRef} className='grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full'></div>
     </div>
   );
 };
