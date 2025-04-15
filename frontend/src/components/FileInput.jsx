@@ -138,8 +138,10 @@ const FileInput = forwardRef(({
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
-                className={`flex flex-col justify-center items-center border-2 border-dashed rounded-md text-center transition-colors cursor-pointer 
-              hover:bg-slate-200 ${dragActive ? 'bg-blue-50 border-blue-400' : 'border-gray-300'} h-20 sm:h-40 lg:h-56 xl:h-64 p-4 sm:p-6`}
+                className={`flex flex-col justify-center items-center border-2 border-dashed rounded-md text-center cursor-pointer
+                    transition-all duration-300 ease-in-out hover:bg-slate-200
+                    ${dragActive ? 'bg-blue-50 border-blue-400' : 'border-gray-300'}
+                    ${files?.length ? 'h-20' : 'h-20 sm:h-40 lg:h-56 xl:h-64 p-4 sm:p-6'}`}
             >
                 <p className="text-gray-600 text-sm mb-2">
                     📂 Drag & drop PDF files here or click to browse
