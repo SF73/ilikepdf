@@ -1,7 +1,6 @@
 import React, { useState, useRef, ChangeEvent } from 'react';
 import { cn } from '@/lib/utils';
-
-
+import { FileInput as LucideFileInput } from 'lucide-react';
 
 interface FileInputProps {
     acceptedFileTypes?: string;
@@ -88,9 +87,9 @@ const FileInput: React.FC<FileInputProps> =
                     // ${dragActive ? 'bg-blue-50 border-blue-400' : 'border-gray-300'}
                     // ${files?.length ? 'h-20' : 'h-20 sm:h-40 lg:h-56 xl:h-64 p-4 sm:p-6'}
                 >
-                    <p className="text-gray-600 text-sm mb-2">
-                        📂 <strong>Drag & drop</strong> files here or <strong>click</strong> to browse
-                    </p>
+                    <div className="flex items-center gap-2">
+                        <LucideFileInput /> <span><strong>Drag & drop</strong> files here or <strong>click</strong> to browse</span>
+                    </div>
 
                     <input
                         ref={fileInputRef}

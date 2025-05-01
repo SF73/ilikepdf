@@ -9,7 +9,7 @@ import { DndContext,
      } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 
-export function TestGrid({
+export function FileGrid({
     files,
     onDelete,
     onReorder,
@@ -27,15 +27,11 @@ export function TestGrid({
             },
         }),
         useSensor(TouchSensor, {
-            // Press delay of 250ms, with tolerance of 5px of movement
             activationConstraint: {
                 delay: 250,
                 tolerance: 5,
             },
         }),
-        // useSensor(KeyboardSensor, {
-        //     coordinateGetter: sortableKeyboardCoordinates,
-        // })
     );
     function handleDragEnd(event: any) {
         const { active, over } = event;
@@ -62,10 +58,8 @@ export function TestGrid({
         {files.map((file) => (
                 <MemoizedFileCard
                 key={file.id}
-                id={file.id}
                 file={file}
-                onDelete={() => onDelete(file.id)}
-                //onPageRangeChange={(start, end) => onPageRangeChange(file.id, start, end)}
+                onDelete={onDelete ? () => onDelete(file.id) : undefined}
                 onPageRangeChange={onPageRangeChange ? (start, end) => onPageRangeChange(file.id, start, end) : undefined}
                 />))}
         </div>

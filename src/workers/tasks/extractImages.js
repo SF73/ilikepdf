@@ -3,7 +3,9 @@ export async function extractImages({ id, pymupdf, pyodide, buffer, ignoreSmask 
   
     const processedXrefs = new Set();
     const pageCount = doc.page_count;
-    const [pageRangeStart, pageRangeEnd] = pageRange || [0, pageCount-1];
+    const pageRangeStart = pageRange?.start -1 ?? 0;
+    const pageRangeEnd = pageRange?.end -1 ?? pageCount - 1;
+    console.log("Page range:", pageRangeStart, pageRangeEnd);
     for (let pageIndex = pageRangeStart; pageIndex <= pageRangeEnd; pageIndex++) {
       const page = doc.load_page(pageIndex);
       const imageList = page.get_images({ full: true }).toJs();

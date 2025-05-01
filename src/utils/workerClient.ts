@@ -8,10 +8,10 @@ interface TaskHandlers {
 }
 
 interface TaskPromise extends Promise<any> {
-  onProgress?: (cb: (percent: number, message?: string) => void) => TaskPromise;
-  onPartial?: (cb: (data: any) => void) => TaskPromise;
-  onDone?: (cb: (result: any) => void) => TaskPromise;
-  onError?: (cb: (error: string) => void) => TaskPromise;
+  onProgress: (cb: (percent: number, message?: string) => void) => TaskPromise;
+  onPartial: (cb: (data: any) => void) => TaskPromise;
+  onDone: (cb: (result: any) => void) => TaskPromise;
+  onError: (cb: (error: string) => void) => TaskPromise;
 }
 
 type WorkerState = "initializing" | "idle" | "busy" | "error";
@@ -49,7 +49,7 @@ worker.addEventListener("error", (err: ErrorEvent) => {
   console.error("[Main → Worker Error]:", err.message, err);
 });
 
-export function runTask(type: string, payload: any) {
+export function runTask(type: string, payload: any, options: { waitForReady?: boolean } = { waitForReady: true }): TaskPromise {
   const id = crypto.randomUUID();
 
   const handlers: TaskHandlers = {
@@ -59,45 +59,53 @@ export function runTask(type: string, payload: any) {
     error: () => {},
   };
 
-  const promise: TaskPromise = new Promise((resolve, reject) => {
-    const handleMessage = (e: MessageEvent) => {
-      const { id: resId, status, result, error, percent, message, data } = e.data;
-      if (resId !== id) return;
-
-      if (status === "progress") {
-        handlers.progress?.(percent, message);
-        return;
+  const promise = new Promise(async (resolve, reject) => {
+    try {
+      if (options.waitForReady) {
+        await waitForWorkerReady();
+        await waitForWorkerIdle();
       }
 
-      if (status === "partial") {
-        handlers.partial?.(data);
-        return;
-      }
+      const handleMessage = (e: MessageEvent) => {
+        const { id: resId, status, result, error, percent, message, data } = e.data;
+        if (resId !== id) return;
 
-      if (status === "done") {
-        handlers.done?.(result);
-        resolve(result);
-        cleanup();
-        return;
-      }
+        if (status === "progress") {
+          handlers.progress?.(percent, message);
+          return;
+        }
 
-      if (status === "error") {
-        handlers.error?.(error);
-        reject(new Error(error));
-        cleanup();
-        return;
-      }
+        if (status === "partial") {
+          handlers.partial?.(data);
+          return;
+        }
 
-      function cleanup() {
-        worker.removeEventListener("message", handleMessage);
-      }
-    };
+        if (status === "done") {
+          handlers.done?.(result);
+          resolve(result);
+          cleanup();
+          return;
+        }
 
-    worker.addEventListener("message", handleMessage);
-    worker.postMessage({ id, type, payload}, getTransferables(payload));
-  });
+        if (status === "error") {
+          handlers.error?.(error);
+          reject(new Error(error));
+          cleanup();
+          return;
+        }
 
-  // Attach optional callbacks
+        function cleanup() {
+          worker.removeEventListener("message", handleMessage);
+        }
+      };
+
+      worker.addEventListener("message", handleMessage);
+      worker.postMessage({ id, type, payload }, getTransferables(payload));
+    } catch (err) {
+      reject(err);
+    }
+  }) as TaskPromise;
+
   promise.onProgress = (cb) => {
     handlers.progress = cb;
     return promise;
@@ -121,12 +129,7 @@ export function runTask(type: string, payload: any) {
   return promise;
 }
 
-export async function safeRunTask(type: string, payload: any) {
-  await waitForWorkerReady();
-  await waitForWorkerIdle();
 
-  return runTask(type, payload);
-}
 
 function getTransferables(payload:any): ArrayBuffer[] {
   const buffers : ArrayBuffer[]= [];

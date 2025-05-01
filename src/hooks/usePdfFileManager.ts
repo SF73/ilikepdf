@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FileMetadata } from "@/types/fileTypes";
-import { safeRunTask } from "@/utils/workerClient";
+import { runTask } from "@/utils/workerClient";
 import { formatFileSize } from "@/utils/utils";
 
 export function usePdfFileManager() {
@@ -54,15 +54,15 @@ export function usePdfFileManager() {
   async function getPdfSummary(newFiles: File[], startIndex: number) {
     newFiles.forEach((file, index) => {
       file.arrayBuffer()
-        .then((buffer) => safeRunTask("getPdfSummary", { buffer, dpi: 40 }))
+        .then((buffer) => runTask("getPdfSummary", { buffer, dpi: 40 }))
         .then(({ pageCount, buffer: thumbBuffer, mime }) => {
           setFiles((prev) => {
-            if (!prev.length) return prev; // nothing to update
+            if (!prev.length) return prev;
   
             const realIndex = startIndex + index;
-            if (realIndex >= prev.length) return prev; // safety check
+            if (realIndex >= prev.length) return prev;
   
-            const updated = prev.slice(); // lighter shallow copy (not spread)
+            const updated = prev.slice();
   
             updated[realIndex] = {
               ...updated[realIndex],

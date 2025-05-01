@@ -1,8 +1,9 @@
 import { Layout } from '@/app/layout'
 import { HashRouter, Routes, Route } from "react-router";
-import MetadataEditor from '@/components/MetadataEditor'
+import MetadataEditor from '@/app/MetadataEditor'
 import FileInput from '@/components/FileInput';
-import { TestComponents } from './app/TestComponents';
+import { Merge } from '@/app/Merge';
+import ImageExtractor from '@/app/ImageExtractor';
 
 const Home = () => (
   <>
@@ -15,6 +16,11 @@ const Home = () => (
   </>
 );
 
+const NotFound = () => (
+  <div className="flex flex-col items-center justify-center h-screen">
+    <h1 className="text-4xl font-bold">404 - Not Found</h1>
+    </div>
+);
 
 function App() {
 
@@ -23,8 +29,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="metadata-worker" element={<MetadataEditor />} />
-          <Route path="test-components" element={<TestComponents />} />
+          <Route path="metadata" element={<MetadataEditor />} />
+          <Route path="merge" element={<Merge />} />
+          <Route path="extract-images" element={<ImageExtractor />} />
+          <Route path="*" element={<NotFound/>} />
         </Route>
       </Routes>
     </HashRouter>

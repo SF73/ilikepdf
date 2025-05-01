@@ -8,17 +8,20 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils";
 
 export const MemoizedFileCard = React.memo(function FileCard({
     file,
     onDelete,
     onPageRangeChange,
+    className,
 }
     :
     {
         file: FileMetadata,
         onDelete?: () => void,
-        onPageRangeChange?: (start: number | null, end: number | null) => void
+        onPageRangeChange?: (start: number | null, end: number | null) => void,
+        className?: string,
     }) {
 
     const {
@@ -47,7 +50,7 @@ export const MemoizedFileCard = React.memo(function FileCard({
     return (
         <div ref={setNodeRef}
             style={style}
-            {...attributes} className="relative w-[210px] px-[8px] py-[12px] overflow-hidden group flex flex-col items-center p-2">
+            {...attributes} className={cn(className, "relative w-[210px] px-[8px] py-[12px] overflow-hidden group flex flex-col items-center p-2")}>
             <div
                 {...listeners}
                 className="cursor-grab active:cursor-grabbing">

@@ -1,27 +1,25 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
+// Due to some safety policies (?) we need to create a new blob URL every time the component renders ?
 export function useBlobUrl(buffer: ArrayBuffer | null, type: string) {
     const [url, setUrl] = useState<string | null>(null);
 
-    const blobUrl = useMemo(() => {
-        if (!buffer) return null;
-        const blob = new Blob([buffer], { type });
-        return URL.createObjectURL(blob);
-    }
-        , [buffer, type]);
-
     useEffect(() => {
-        if (!blobUrl) {
+        if (!buffer) {
             setUrl(null);
             return;
         }
+
+        const blob = new Blob([buffer], { type });
+        const blobUrl = URL.createObjectURL(blob);
         setUrl(blobUrl);
+        console.log("Creating blob URL:", blobUrl);
+
         return () => {
-            if (blobUrl) {
-                URL.revokeObjectURL(blobUrl);
-            }
+            console.log("Revoking blob URL:", blobUrl);
+            URL.revokeObjectURL(blobUrl);
         };
-    }, [blobUrl]);
+    }, [buffer, type]);
 
     return url;
 }
