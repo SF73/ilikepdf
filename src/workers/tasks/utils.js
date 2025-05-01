@@ -3,11 +3,11 @@ function generateRange(start, end, step) {
     if (step === 0) return range;
 
     if (step > 0) {
-        for (let i = start; i < end; i += step) {
+        for (let i = start; i <= end; i += step) {
             range.push(i);
         }
     } else {
-        for (let i = start; i > end; i += step) {
+        for (let i = start; i >= end; i += step) {
             range.push(i);
         }
     }
@@ -21,7 +21,7 @@ export function parsePageRanges(rangeStrings, pageCount = null) {
     console.log("parsePageRanges", rangeStrings, pageCount);
     const resolveIndex = (i) => {
         if (i == null) return null;
-        return i >= 0 ? i : (pageCount != null ? pageCount + i : i);
+        return i >= 0 ? i : (pageCount != null ? pageCount + i + 1 : i);
     };
 
     const parseSlice = (slice) => {
@@ -31,7 +31,7 @@ export function parsePageRanges(rangeStrings, pageCount = null) {
         const step = rawStep ?? 1;
 
         let start = resolveIndex(rawStart ?? 0);
-        let end = resolveIndex(rawEnd ?? (pageCount ?? start + 1));
+        let end = resolveIndex(rawEnd ?? (pageCount ?? start));
         return generateRange(start, end, step);
     };
 
@@ -47,6 +47,6 @@ export function parsePageRanges(rangeStrings, pageCount = null) {
     }
 
     return pageCount != null
-        ? result.filter(p => p >= 0 && p < pageCount)
+        ? result.filter(p => p >= 0 && p <= pageCount)
         : result;
 }

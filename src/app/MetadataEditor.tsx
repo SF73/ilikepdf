@@ -5,7 +5,7 @@ import PdfPreviewCard from '../components/PdfResultCard';
 import { Textarea } from '@/components/ui/textarea';
 import usePdfFileManager from '@/hooks/usePdfFileManager';
 import { Button } from '@/components/ui/button';
-import MemoizedFileCard from '../components/MemoizedFileCard';
+import MemoizedFileCard from '@/components/MemoizedFileCard';
 
 const MetadataEditor = () => {
   const [buffer, setBuffer] = useState<ArrayBuffer | null>(null);

@@ -1,6 +1,6 @@
 export async function getPdfSummary({ pyodide, pymupdf, buffer, dpi = 10, alpha = false}) {
     const doc = pymupdf.Document.callKwargs({
-      stream: pyodide.toPy(new Uint8Array(buffer))
+      stream: pyodide.toPy(buffer)
     });
   
     const pageCount = doc.page_count;

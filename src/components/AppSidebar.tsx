@@ -24,8 +24,8 @@ const items = [
       icon: Images,
     },
     {
-      title: "Select pages",
-      url: "select-pages-worker",
+      title: "Compose pages",
+      url: "compose-pages",
       icon: FileStack,
     },
   ]

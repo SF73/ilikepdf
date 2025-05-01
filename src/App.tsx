@@ -1,18 +1,14 @@
 import { Layout } from '@/app/layout'
 import { HashRouter, Routes, Route } from "react-router";
 import MetadataEditor from '@/app/MetadataEditor'
-import FileInput from '@/components/FileInput';
 import { Merge } from '@/app/Merge';
 import ImageExtractor from '@/app/ImageExtractor';
+import PageComposer from '@/app/PageComposer';
 
 const Home = () => (
   <>
     <h1>Home</h1>
     <p>blablalba</p>
-    <FileInput
-      acceptedFileTypes="application/pdf"
-      allowMultiple={false}
-    />
   </>
 );
 
@@ -32,6 +28,7 @@ function App() {
           <Route path="metadata" element={<MetadataEditor />} />
           <Route path="merge" element={<Merge />} />
           <Route path="extract-images" element={<ImageExtractor />} />
+          <Route path="compose-pages" element={<PageComposer />} />
           <Route path="*" element={<NotFound/>} />
         </Route>
       </Routes>
