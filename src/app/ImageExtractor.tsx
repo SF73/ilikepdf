@@ -1,6 +1,5 @@
-import React, { useState, memo } from 'react';
+import { useState, memo } from 'react';
 import FileInput from '@/components/FileInput';
-// import ProgressBar from './ProgressBar';
 import { runTask } from '../utils/workerClient';
 import usePdfFileManager from '@/hooks/usePdfFileManager';
 import { Button } from '@/components/ui/button';
@@ -28,9 +27,9 @@ interface RawImage {
 }
 
 const ImageExtractorReact = () => {
-  const [ignoreSmask, setIgnoreSmask] = useState(false);
+  const [ignoreSmask, setIgnoreSmask] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
-  const [progressMessage, setProgressMessage] = useState("");
+  const [progressMessage, setProgressMessage] = useState<string>("");
   const [images, setImages] = useState<RawImage[]>([]);
   const { files, replaceFiles, setPageRange, removeFile } = usePdfFileManager();
 
@@ -76,7 +75,7 @@ const ImageExtractorReact = () => {
           <MemoizedFileCard className="flex grow-1" file={files[0]} onDelete={() => removeFile(files[0].id)} onPageRangeChange={(start, end) => setPageRange(files[0].id, start, end)} />
           <div className="flex grow-5 flex-col">
             <div className="flex items-center space-x-2">
-              <Checkbox id="ignoreSmask" />
+              <Checkbox id="ignoreSmask" onCheckedChange={(checked) => setIgnoreSmask(checked as boolean)}/>
               <label
                 htmlFor="ignoreSmask"
               >

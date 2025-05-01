@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import FileInput from '../components/FileInput';
 import PdfPreviewCard from '../components/PdfResultCard';
 import { runTask  } from "@/utils/workerClient";
@@ -17,7 +17,7 @@ export const Merge = () => {
       files.map(({ fileHandle }) => fileHandle.arrayBuffer())
     );
 
-    const { buffer, mime } = await runTask("mergePdfs", {
+    const { buffer } = await runTask("mergePdfs", {
       buffers,
       pageRanges: files.map((file) => file.pageRange),
     });

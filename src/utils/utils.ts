@@ -1,4 +1,4 @@
-import { FileMetadata } from '@/types/fileTypes';
+// import { FileMetadata } from '@/types/fileTypes';
 
 function generateRange(start: number, end: number, step: number): number[] {
     const range: number[] = [];
@@ -17,18 +17,18 @@ function generateRange(start: number, end: number, step: number): number[] {
     return range;
 }
 
-const getFilesWithPageRanges = (files: FileMetadata[]) => {
-    return files.map(({ fileHandle, pageRange }) => {
-        const { start, end } = pageRange || {};
-        return {
-            fileHandle,
-            pageRange:
-                start != null || end != null
-                    ? [start != null ? start - 1 : null, end != null ? end - 1 : null]
-                    : null,
-        };
-    });
-};
+// const getFilesWithPageRanges = (files: FileMetadata[]) => {
+//     return files.map(({ fileHandle, pageRange }) => {
+//         const { start, end } = pageRange || {};
+//         return {
+//             fileHandle,
+//             pageRange:
+//                 start != null || end != null
+//                     ? [start != null ? start - 1 : null, end != null ? end - 1 : null]
+//                     : null,
+//         };
+//     });
+// };
 
 
 export function parsePageRanges(rangeStrings: string, pageCount : (number | null) = null): number[] {

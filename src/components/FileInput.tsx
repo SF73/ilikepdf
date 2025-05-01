@@ -1,4 +1,4 @@
-import React, { useState, useRef, ChangeEvent } from 'react';
+import React, { useRef, ChangeEvent } from 'react';
 import { cn } from '@/lib/utils';
 import { FileInput as LucideFileInput } from 'lucide-react';
 
@@ -17,10 +17,10 @@ const FileInput: React.FC<FileInputProps> =
             allowMultiple = true,
             onFilesChange,
             className,
-            ...props
+            // ...props
         }) => {
         const fileInputRef = useRef<HTMLInputElement | null>(null);
-        const [dragActive, setDragActive] = useState(false);
+        // const [dragActive, setDragActive] = useState(false);
         
         const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
 
@@ -35,7 +35,7 @@ const FileInput: React.FC<FileInputProps> =
         const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
             e.preventDefault();
             e.stopPropagation();
-            setDragActive(false);
+            // setDragActive(false);
 
             if (e.dataTransfer?.files?.length) {
                 const droppedFiles = Array.from(e.dataTransfer.files).filter(file =>
@@ -55,13 +55,13 @@ const FileInput: React.FC<FileInputProps> =
         const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
             e.preventDefault();
             e.stopPropagation();
-            setDragActive(true);
+            // setDragActive(true);
         };
 
         const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
             e.preventDefault();
             e.stopPropagation();
-            setDragActive(false);
+            // setDragActive(false);
         };
 
         function isAcceptedFile(file: File, acceptedTypes: string) {

@@ -67,6 +67,7 @@ export function usePdfFileManager() {
             updated[realIndex] = {
               ...updated[realIndex],
               thumbnailBuffer: thumbBuffer,
+              thumbnailType: mime,
               pageCount,
               pageRange: { start: 1, end: pageCount },
             };

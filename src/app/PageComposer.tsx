@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import FileInput from '../components/FileInput';
 import { runTask } from '../utils/workerClient';
 import PdfPreviewCard from '../components/PdfResultCard';
@@ -18,7 +18,7 @@ const PageComposer = () => {
       if (files.length === 0) return;
       const inputBuffer = await files[0].fileHandle.arrayBuffer();
       const inputFilename = files[0].fileHandle.name || "composed.pdf";
-      const { buffer: newBuffer, mime } = await runTask("selectPages", {
+      const { buffer: newBuffer } = await runTask("selectPages", {
         buffer: inputBuffer,
         slices: slices,
       });

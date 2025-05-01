@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Download, Fullscreen, Eye, EyeClosed } from 'lucide-react';
 import {
     Card,
-    CardContent,
+    // CardContent,
     CardDescription,
-    CardFooter,
+    // CardFooter,
     CardHeader,
     CardTitle,
   } from "@/components/ui/card"
 
-import { useBlobUrl } from "@/hooks/useBlobUrl";
+// import { useBlobUrl } from "@/hooks/useBlobUrl";
   
 interface PdfPreviewCardProps {
     arrayBuffer: ArrayBuffer | null;

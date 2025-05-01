@@ -12,4 +12,15 @@ export default defineConfig({
     },
   },
   base: '/ilikepdf/',
+  build: {
+    target: 'esnext',
+    rollupOptions: {
+      output: {
+        format: 'es'
+      }
+    }
+  },
+  worker: {
+    format: 'es'
+  }
 })

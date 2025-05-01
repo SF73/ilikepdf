@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import FileInput from '../components/FileInput';
 import { runTask } from '../utils/workerClient';
 import PdfPreviewCard from '../components/PdfResultCard';
