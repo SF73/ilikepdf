@@ -4,8 +4,8 @@ export const mergePdfs = async ({ pymupdf, pyodide, buffers, pageRanges }) => {
     for (let i = 0; i < buffers.length; i++) {
         const buffer = buffers[i];
         let {start, end} = pageRanges[i] ? pageRanges[i] : [null, null];
-        start = start != null ? start : -1;
-        end = end != null ? end : -1;
+        start = start != null ? start -1 : -1;
+        end = end != null ? end -1: -1;
         const pdfDoc = pymupdf.Document.callKwargs({ stream: pyodide.toPy(buffer) });
         mergedDoc.insert_pdf.callKwargs(pdfDoc, { from_page: start, to_page: end });
         pdfDoc.close();
