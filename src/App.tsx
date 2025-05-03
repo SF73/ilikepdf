@@ -4,19 +4,8 @@ import MetadataEditor from '@/app/MetadataEditor'
 import { Merge } from '@/app/Merge';
 import ImageExtractor from '@/app/ImageExtractor';
 import PageComposer from '@/app/PageComposer';
-
-const Home = () => (
-  <>
-    <h1>Home</h1>
-    <p>blablalba</p>
-  </>
-);
-
-const NotFound = () => (
-  <div className="flex flex-col items-center justify-center h-screen">
-    <h1 className="text-4xl font-bold">404 - Not Found</h1>
-    </div>
-);
+import { Home } from '@/app/Home';
+import { NotFound } from '@/app/NotFound';
 
 function App() {
 
