@@ -6,6 +6,7 @@ import ImageExtractor from '@/app/ImageExtractor';
 import PageComposer from '@/app/PageComposer';
 import { Home } from '@/app/Home';
 import { NotFound } from '@/app/NotFound';
+import Compress from '@/app/Compress';
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
           <Route path="merge" element={<Merge />} />
           <Route path="extract-images" element={<ImageExtractor />} />
           <Route path="compose-pages" element={<PageComposer />} />
+          <Route path="compress" element={<Compress />} />
           <Route path="*" element={<NotFound/>} />
         </Route>
       </Routes>
