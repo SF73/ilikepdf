@@ -1,7 +1,4 @@
-export function getPdfMetadata({ pyodide, pymupdf, buffer }) {
-    const doc = pymupdf.Document.callKwargs({ stream: pyodide.toPy(buffer) });
-    const metadata = doc.metadata.toJs({ dict_converter: Object.fromEntries });
-    doc.close();
-    return metadata;
-  }
-  
+export const getPdfMetadata = async ({id, pdftoolbox, pyodide, buffer }) => {
+    const metadata =  pdftoolbox.get_metadata(pyodide.toPy(buffer));
+    return metadata.toJs({ dict_converter: Object.fromEntries });
+}
