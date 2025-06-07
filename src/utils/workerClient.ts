@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 type WorkerStatusCallback = (status: string, data: any) => void;
 
 interface TaskHandlers {
@@ -50,7 +52,7 @@ worker.addEventListener("error", (err: ErrorEvent) => {
 });
 
 export function runTask(type: string, payload: any, options: { waitForReady?: boolean } = { waitForReady: true }): TaskPromise {
-  const id = crypto.randomUUID();
+  const id = uuidv4();
 
   const handlers: TaskHandlers = {
     progress: () => {},
