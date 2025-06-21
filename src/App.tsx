@@ -7,10 +7,12 @@ import PageComposer from '@/app/PageComposer';
 import { Home } from '@/app/Home';
 import { NotFound } from '@/app/NotFound';
 import Compress from '@/app/Compress';
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 function App() {
 
   return (
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
     <HashRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
@@ -24,6 +26,7 @@ function App() {
         </Route>
       </Routes>
     </HashRouter>
+    </ThemeProvider>
   )
 }
 
