@@ -1,17 +1,8 @@
-export const mergePdfs = async ({ pymupdf, pyodide, buffers, pageRanges }) => {
-    console.log(buffers, pageRanges);
-    const mergedDoc = pymupdf.Document();
-    for (let i = 0; i < buffers.length; i++) {
-        const buffer = buffers[i];
-        let {start, end} = pageRanges[i] ? pageRanges[i] : [null, null];
-        start = start != null ? start -1 : -1;
-        end = end != null ? end -1: -1;
-        const pdfDoc = pymupdf.Document.callKwargs({ stream: pyodide.toPy(buffer) });
-        mergedDoc.insert_pdf.callKwargs(pdfDoc, { from_page: start, to_page: end });
-        pdfDoc.close();
-    }
-    const mergedBuffer = mergedDoc.write();
-    mergedDoc.close();
+export const mergePdfs = async ({ pyodide, pdftoolbox, buffers, pageRanges, reportProgress, garbage = 0, clean = false, deflate = false, useObjStms = 0 }) => {
+    const pdfBuffers = buffers.map(b => pyodide.toPy(b));
+    const ranges = pageRanges.map(r => [r?.start -1, r?.end -1]);
+    console.log(pdfBuffers, ranges);
+    const mergedBuffer = pdftoolbox.merge_pdfs.callKwargs(pdfBuffers, ranges, {garbage, clean, deflate, use_objstms: useObjStms, reportProgress});
     return {
         buffer: mergedBuffer.toJs().buffer,
         mime: 'application/pdf',

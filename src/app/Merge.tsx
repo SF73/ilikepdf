@@ -1,15 +1,21 @@
-import { useState } from 'react';
-import FileInput from '../components/FileInput';
+import { useEffect, useState } from 'react';
+import FileInput, { getFileInputHeightClass } from '../components/FileInput';
 import PdfPreviewCard from '../components/PdfResultCard';
-import { runTask  } from "@/utils/workerClient";
+import { runTask } from "@/utils/workerClient";
 import usePdfFileManager from "@/hooks/usePdfFileManager";
 import { Button } from '../components/ui/button';
 import { FileGrid } from '../components/FileGrid';
+import ToolLayout from '@/components/ToolLayout';
 
 export const Merge = () => {
-  const {files, addFiles, removeFile, reorderFiles, setPageRange} = usePdfFileManager();
+  const { files, addFiles, removeFile, reorderFiles, setPageRange } = usePdfFileManager();
   const [buffer, setBuffer] = useState<ArrayBuffer | null>(null);
-  
+
+
+  useEffect(() => {
+    setBuffer(null);
+  }
+    , [files]);
 
   const handleMerge = async () => {
     if (!files.length) return;
@@ -25,17 +31,29 @@ export const Merge = () => {
   };
 
   return (
-    <div>
-        <FileInput
+
+    <ToolLayout title='Merge PDFs' description={<>
+      <p>Merge multiple PDF files into a single document. You can select multiple files, reorder them by drag and drop, and specify page ranges for each file if needed.</p>
+    </>}>
+
+      <FileInput
         acceptedFileTypes="application/pdf"
         allowMultiple={true}
         onFilesChange={addFiles}
-        className={`w-full mb-4 ${files?.length > 0 ? 'h-20' : 'h-20 sm:h-40 lg:h-56 xl:h-64 p-4 sm:p-6'}`}
-      />
-      <FileGrid files={files} onDelete={removeFile} onReorder={reorderFiles} onPageRangeChange={setPageRange}/>
-      <Button className="w-full" onClick={handleMerge}>Merge PDFs</Button>
+        className={`w-full ${getFileInputHeightClass(files)}`} />
+
+      {
+        files.length > 0 && (
+          <>
+            <FileGrid files={files} onDelete={removeFile} onReorder={reorderFiles} onPageRangeChange={setPageRange} />
+            <Button className="w-full" onClick={handleMerge}>Merge PDFs</Button>
+          </>
+        )
+      }
+
       {buffer && <PdfPreviewCard arrayBuffer={buffer} blobName={"merged.pdf"} autoPreview={false} />}
-    </div>
+    </ToolLayout>
+
   );
 };
 

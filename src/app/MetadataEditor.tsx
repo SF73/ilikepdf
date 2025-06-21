@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import usePdfFileManager from '@/hooks/usePdfFileManager';
 import { Button } from '@/components/ui/button';
 import MemoizedFileCard from '@/components/MemoizedFileCard';
+import ToolLayout from '@/components/ToolLayout';
 
 const MetadataEditor = () => {
   const [buffer, setBuffer] = useState<ArrayBuffer | null>(null);
@@ -14,6 +15,9 @@ const MetadataEditor = () => {
   const { files, replaceFiles, removeFile } = usePdfFileManager();
 
   useEffect(() => {
+    setBuffer(null);
+    setFileName('');
+    setTextareaValue('');
     if (files.length > 0) {
       handleProcessFiles();
     }
@@ -54,31 +58,33 @@ const MetadataEditor = () => {
   }
 
   return (
-    <div>
+    <ToolLayout title='PDF Metadata Editor' description={<>
+        <p>
+          Read and edit PDF metadata.
+        </p></>}>
       <FileInput
         acceptedFileTypes="application/pdf"
         allowMultiple={false}
         onFilesChange={replaceFiles}
-        className={`w-full mb-4 ${files?.length > 0 ? 'h-20' : 'h-20 sm:h-40 lg:h-56 xl:h-64 p-4 sm:p-6'}`}
-      />
+        className={`w-full ${files?.length > 0 ? 'h-20' : 'h-32 sm:h-40 lg:h-48 p-4'}`} />
       {files.length > 0 && (<>
-      <div className='flex flex-row gap-2 mb-4'>
-        <MemoizedFileCard file={files[0]} onDelete={()=>removeFile(files[0].id)}/>
-        <Textarea
-          id="output"
-          rows={12}
-          value={textareaValue}
-          onChange={(e) => setTextareaValue(e.target.value)}
-        ></Textarea>
-      </div>
-      <Button className="w-full" onClick={handleSetAndDownload}>
-        Set Metadata
-      </Button>
+        <div className='flex flex-row gap-2 mb-4'>
+          <MemoizedFileCard file={files[0]} onDelete={() => removeFile(files[0].id)} />
+          <Textarea
+            id="output"
+            rows={12}
+            value={textareaValue}
+            onChange={(e) => setTextareaValue(e.target.value)}
+          ></Textarea>
+        </div>
+        <Button className="w-full" onClick={handleSetAndDownload}>
+          Set Metadata
+        </Button>
 
-      {buffer && <PdfPreviewCard arrayBuffer={buffer} blobName={fileName} autoPreview={false} />}
+        {buffer && <PdfPreviewCard arrayBuffer={buffer} blobName={fileName} autoPreview={false} />}
       </>
-    )}
-    </div>
+      )}
+    </ToolLayout>
   );
 };
 

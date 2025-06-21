@@ -1,7 +1,7 @@
 import zlib
 from typing import Dict, Any
-
 import pymupdf
+from .utils import fix_xref
 
 
 def get_image_info(doc, reportProgress = None) -> Dict[int, Dict[str, Any]]:
@@ -48,10 +48,10 @@ def get_image_info(doc, reportProgress = None) -> Dict[int, Dict[str, Any]]:
 def downsample_images(
     buffer: bytes,
     factor_limit: float = 2.0,
-    garbage: int = 3,
-    clean: bool = True,
-    deflate: bool = True,
-    use_objstms: int = 1,
+    garbage: int = 0,
+    clean: bool = False,
+    deflate: bool = False,
+    use_objstms: int = 0,
     reportProgress: Any = None
 ) -> bytes:
     """
@@ -59,34 +59,66 @@ def downsample_images(
     """
 
     doc = pymupdf.Document(stream=buffer)
-    reportProgress(0, f"Searching images in document")
+    fix_xref(doc)
+    if reportProgress:
+        reportProgress(0, f"Searching images in document")
     image_info = get_image_info(doc, reportProgress)
 
     for index, (xref, info) in enumerate(image_info.items()):
         # Skip images that don’t meet the ratio threshold
         if info["ratio"] < factor_limit:
             continue
-
+        
         pixmap = pymupdf.Pixmap(doc, xref)
+        mask_pixmap = None
+        mask = None
+
+        if info["smask"]:
+            mask_xref = info["smask"]
+            mask = pymupdf.Pixmap(doc, info["smask"])
+            pixmap = pymupdf.Pixmap(pixmap, mask)
         new_width = round(info["display_width"] * factor_limit)
         new_height = round(info["display_height"] * factor_limit)
 
-        scaled_pixmap = pymupdf.Pixmap(pixmap, new_width, new_height)
-        raw_bytes = scaled_pixmap.samples
+        # 'pix' is an RGBA pixmap
+        # pixcolors = pymupdf.Pixmap(pix, 0)    # extract the RGB part (drop alpha)
+        # pixalpha = pymupdf.Pixmap(None, pix)  # extract the alpha part
+
+        pixmap = pymupdf.Pixmap(pixmap, new_width, new_height)
+
+        if mask:
+            scaled_pixmap = pymupdf.Pixmap(pixmap, 0)
+            scaled_mask = pymupdf.Pixmap(None, pixmap)
+        else:
+            scaled_pixmap = pixmap
+
+        raw_bytes = scaled_pixmap.samples_mv
 
         compressed_bytes = zlib.compress(raw_bytes, level=9)
         use_compressed = len(compressed_bytes) < len(raw_bytes)
 
         # Only replace if compressed image is smaller than original
         old_length = int(doc.xref_get_key(xref, "Length")[1])
-        final_bytes = compressed_bytes if use_compressed else raw_bytes
+        final_bytes = compressed_bytes if use_compressed else bytes(raw_bytes)
 
         if len(final_bytes) < old_length:
             doc.update_stream(xref, final_bytes, compress=False)
             doc.xref_set_key(xref, "Width", str(scaled_pixmap.width))
             doc.xref_set_key(xref, "Height", str(scaled_pixmap.height))
+            doc.xref_set_key(xref, "DecodeParms", "null")
             if use_compressed:
                 doc.xref_set_key(xref, "Filter", "/FlateDecode")
+            else:
+                doc.xref_set_key(xref, "Filter", "null")
+            doc.xref_set_key(xref, "DecodeParms", "null")
+            doc.xref_set_key(xref, "ColorSpace", "/DeviceRGB" if scaled_pixmap.n >= 3 else "/DeviceGray")
+            doc.xref_set_key(xref, "BitsPerComponent", "8")
+
+        if mask:
+            doc.update_stream(mask_xref, scaled_mask.samples)
+            doc.xref_set_key(mask_xref, "Width", str(scaled_mask.width))
+            doc.xref_set_key(mask_xref, "Height", str(scaled_mask.height))
+
         if reportProgress:
             reportProgress((index + 1) / len(image_info) * 100, f"Compressing image {index + 1}/{len(image_info)}")
     
@@ -95,5 +127,6 @@ def downsample_images(
     print(garbage, deflate, use_objstms, clean)
     docBytes =  doc.tobytes(deflate=deflate, garbage=garbage, use_objstms=use_objstms, clean=clean)
     doc.close()
-    reportProgress(100, f"Done")
+    if reportProgress:
+        reportProgress(100, f"Done")
     return docBytes

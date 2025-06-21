@@ -47,5 +47,6 @@ def extract_images(buffer, pageRange, reportProgress, sendPartial, ignoreSmask =
             if reportProgress:
                 percent = round((page.number + 1 ) / doc.page_count *100)
                 reportProgress(percent, f"Extracting images from page {page.number + 1}...")
-    reportProgress(100, "Image extraction completed.")
+    if reportProgress:
+        reportProgress(100, "Image extraction completed.")
     doc.close()

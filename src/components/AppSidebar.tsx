@@ -39,6 +39,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
+        <div className="m-4">
         <SidebarGroupContent>
           <SidebarMenu>
             {items.map((item) => (
@@ -56,6 +57,7 @@ export function AppSidebar() {
             ))}
           </SidebarMenu>
         </SidebarGroupContent>
+        </div>
       </SidebarContent>
     </Sidebar>
   )

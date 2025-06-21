@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import FileInput from '../components/FileInput';
+import { useEffect, useState } from 'react';
+import FileInput, { getFileInputHeightClass } from '../components/FileInput';
 import { runTask } from '../utils/workerClient';
 import PdfPreviewCard from '../components/PdfResultCard';
 import usePdfFileManager from '@/hooks/usePdfFileManager';
@@ -22,6 +22,14 @@ const Compress = () => {
     const [progressMessage, setProgressMessage] = useState<string>("");
     const { files, replaceFiles, removeFile } = usePdfFileManager();
 
+    useEffect(() => {
+        setProgress(0);
+        setProgressMessage("");
+        setBuffer(null);
+        setFileName('');
+    }
+        , [files]);
+
     const handleProcessFiles = async () => {
         try {
             if (files.length === 0) return;
@@ -30,16 +38,17 @@ const Compress = () => {
             setProgressMessage("");
             const input = await files[0].fileHandle.arrayBuffer();
             runTask('compress', { buffer: input, maxFactor: maxFactor, garbage, clean, deflate, useObjStms })
-            .onProgress((percent: number, message?: string) => {
-                console.log(`Progress: ${percent}% - ${message}`);
-                setProgress(percent);
-                if (message) setProgressMessage(message);
-            })
-            .then(({buffer}) => {
-                setProgressMessage("Compression completed.");
-                setBuffer(buffer);
-            });
-            
+                .onProgress((percent: number, message?: string) => {
+                    console.log(`Progress: ${percent}% - ${message}`);
+                    setProgress(percent);
+                    if (message) setProgressMessage(message);
+                })
+                .then(({ buffer }) => {
+                    setProgressMessage("Compression completed.");
+                    setBuffer(buffer);
+                    setFileName(files[0].fileHandle.name + `_compressed.pdf`);
+                });
+
         } catch (err) {
             console.error("Failed to compress:", err);
         } finally {
@@ -47,110 +56,124 @@ const Compress = () => {
     };
 
     return (
-        <div>
-            {/* File Input */}
-            <Label htmlFor="pdfUpload" className="block mb-1">
-                Upload PDF File
-            </Label>
-            <FileInput
-                id="pdfUpload"
-                acceptedFileTypes="application/pdf"
-                allowMultiple={false}
-                onFilesChange={replaceFiles}
-                className={`w-full mb-4 ${files?.length > 0 ? 'h-20' : 'h-20 sm:h-40 lg:h-56 xl:h-64 p-4 sm:p-6'}`}
-            />
+        <div className="flex justify-center">
+            <div className="max-w-6xl w-full p-4 space-y-6">
+                {/* Header */}
+                <div>
+                    <h1 className="text-3xl font-bold mb-2">Compress</h1>
+                    <p>This is experimental, for a more standard tool you can use my other webapp based on ghostscript <a href='https://sf73.github.io/gs-wasm/' target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">here</a></p>
+                    <p>
+                        Reduce PDF size by downscaling images that are much larger than needed for display.
+                    </p>
+                    <p>
+                        For smaller files, try increasing garbage collection and enabling options. Note: it may increase processing time significantly. More info on these options can be found in pymupdf documentation{' '}
+                        <a href="https://pymupdf.readthedocs.io/en/latest/document.html#Document.save" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                            here
+                        </a>.
+                    </p>
+                </div>
 
-            {files.length > 0 && (
-                <>
-                    {/* Uploaded File Card */}
-                    <div className='flex flex-row gap-2 mb-4'>
-                        <MemoizedFileCard file={files[0]} onDelete={() => removeFile(files[0].id)} />
+                <FileInput
+                    id="pdfUpload"
+                    acceptedFileTypes="application/pdf"
+                    allowMultiple={false}
+                    onFilesChange={replaceFiles}
+                    className={`w-full ${getFileInputHeightClass(files)}`} />
+
+
+                {files.length > 0 && (
+                    <div className="flex flex-col sm:flex-row gap-4 items-start">
+                        {/* Uploaded File Card */}
+                        <MemoizedFileCard className="flex grow-0" file={files[0]} onDelete={() => removeFile(files[0].id)} />
+
+                        {/* options */}
+                        <div className="flex flex-col w-full justify-between">
+                            {/* Garbage Collection Level */}
+                            <div className="mb-2">
+                                <Label htmlFor="garbage">
+                                    Garbage Collection Level (0-4)
+                                </Label>
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    max={4}
+                                    defaultValue={0}
+                                    onChange={(e) => {
+                                        const value = e.target.value ? parseInt(e.target.value) : 0;
+                                        setGarbage(value);
+                                    }}
+                                    id="garbage"
+                                    className="w-full"
+                                />
+                            </div>
+
+                            {/* Max Factor */}
+                            <div className="mb-2">
+                                <Label htmlFor="maxFactor">
+                                    Size to display maximum ratio (1-10)
+                                </Label>
+                                <Input
+                                    type="number"
+                                    min={1}
+                                    max={10}
+                                    defaultValue={2}
+                                    onChange={(e) => {
+                                        const value = e.target.value ? parseFloat(e.target.value) : 2;
+                                        setMaxFactor(value);
+                                    }}
+                                    className="w-full"
+                                    placeholder="Max Factor"
+                                    id="maxFactor"
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-2 mb-2">
+                                <Checkbox
+                                    id="cleanCheckbox"
+                                    onCheckedChange={(checked) => setClean(checked as boolean)}
+                                />
+                                <Label htmlFor="cleanCheckbox">Clean</Label>
+                            </div>
+
+                            <div className="flex items-center gap-2 mb-2">
+                                <Checkbox
+                                    id="deflateCheckbox"
+                                    onCheckedChange={(checked) => setDeflate(checked as boolean)}
+                                />
+                                <Label htmlFor="deflateCheckbox">Deflate</Label>
+                            </div>
+
+                            <div className="flex items-center gap-2 mb-2">
+                                <Checkbox
+                                    id="useObjStmsCheckbox"
+                                    onCheckedChange={(checked) => setUseObjStms(checked as boolean)}
+                                />
+                                <Label htmlFor="useObjStmsCheckbox">Use Object Streams</Label>
+                            </div>
+
+                            {/* Compress Button */}
+                            <Button className="w-full mb-4" onClick={handleProcessFiles}>
+                                Compress
+                            </Button>
+
+                            {/* Progress Bar */}
+                            <Progress value={progress} className="w-full mb-2" />
+                            {progressMessage && (
+                                <p className="text-sm text-gray-500 mb-4">{progressMessage}</p>
+                            )}
+                        </div>
+
                     </div>
+                )}
+                {buffer && (
+                    <PdfPreviewCard
+                        arrayBuffer={buffer}
+                        blobName={fileName}
+                        autoPreview={false}
+                    />
+                )}
 
-                    {/* Garbage Collection Level */}
-                    <div className="mb-2">
-                        <Label htmlFor="garbage">
-                            Garbage Collection Level (0-4)
-                        </Label>
-                        <Input
-                            type="number"
-                            min={0}
-                            max={4}
-                            defaultValue={0}
-                            onChange={(e) => {
-                                const value = e.target.value ? parseInt(e.target.value) : 0;
-                                setGarbage(value);
-                            }}
-                            id="garbage"
-                            className="w-full"
-                        />
-                    </div>
-
-                    {/* Max Factor */}
-                    <div className="mb-2">
-                        <Label htmlFor="maxFactor">
-                            Size to display maximum ratio (1-10)
-                        </Label>
-                        <Input
-                            type="number"
-                            min={1}
-                            max={10}
-                            defaultValue={2}
-                            onChange={(e) => {
-                                const value = e.target.value ? parseFloat(e.target.value) : 2;
-                                setMaxFactor(value);
-                            }}
-                            className="w-full"
-                            placeholder="Max Factor"
-                            id="maxFactor"
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-2 mb-2">
-                        <Checkbox
-                            id="cleanCheckbox"
-                            onCheckedChange={(checked) => setClean(checked as boolean)}
-                        />
-                        <Label htmlFor="cleanCheckbox">Clean</Label>
-                    </div>
-
-                    <div className="flex items-center gap-2 mb-2">
-                        <Checkbox
-                            id="deflateCheckbox"
-                            onCheckedChange={(checked) => setDeflate(checked as boolean)}
-                        />
-                        <Label htmlFor="deflateCheckbox">Deflate</Label>
-                    </div>
-
-                    <div className="flex items-center gap-2 mb-2">
-                        <Checkbox
-                            id="useObjStmsCheckbox"
-                            onCheckedChange={(checked) => setUseObjStms(checked as boolean)}
-                        />
-                        <Label htmlFor="useObjStmsCheckbox">Use Object Streams</Label>
-                    </div>
-
-                    {/* Compress Button */}
-                    <Button className="w-full mb-4" onClick={handleProcessFiles}>
-                        Compress
-                    </Button>
-
-                    {/* Progress Bar */}
-                    <Progress value={progress} className="w-full mb-2" />
-                    {progressMessage && (
-                        <p className="text-sm text-gray-500 mb-4">{progressMessage}</p>
-                    )}
-
-                    {/* PDF Preview */}
-                    {buffer && (
-                        <PdfPreviewCard
-                            arrayBuffer={buffer}
-                            blobName={fileName}
-                            autoPreview={false}
-                        />
-                    )}
-                </>
-            )}
+            </div>
         </div>
     );
 };

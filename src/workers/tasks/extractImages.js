@@ -7,7 +7,7 @@ export async function extractImages({ id, pdftoolbox, pyodide, buffer, ignoreSma
     };
     self.postMessage({ id, status: "partial", data: image }, [image.buffer]);
   }
-
-  pdftoolbox.extract_images.callKwargs(pyodide.toPy(buffer), [pageRange?.start -1, pageRange?.end -1], reportProgress, sendPartial, {ignoreSmask});
+  // in python the page range is 1-indexed and end is excluded
+  pdftoolbox.extract_images.callKwargs(pyodide.toPy(buffer), [pageRange?.start -1, pageRange?.end], reportProgress, sendPartial, {ignoreSmask});
   self.postMessage({ id, status: "done" });
 }

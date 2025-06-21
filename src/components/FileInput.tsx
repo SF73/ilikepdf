@@ -10,6 +10,12 @@ interface FileInputProps {
     [key: string]: any;
 }
 
+export function getFileInputHeightClass(files: any[] | undefined) {
+  return files && files.length > 0
+    ? 'h-20'
+    : 'h-32 sm:h-40 lg:h-48 p-4';
+}
+
 const FileInput: React.FC<FileInputProps> =
     (
         {
