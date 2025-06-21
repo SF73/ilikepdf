@@ -5,7 +5,7 @@ import { setPdfMetadata } from "./setPdfMetadata.js";
 import { selectPages } from "./selectPages.js";
 import { getPdfSummary } from "./getPdfSummary.js";
 import { mergePdfs } from "./mergePdf.js";
-
+import { compress } from "./compress.js";
 export const tasks = {
   extractImages,
   getPdfMetadata,
@@ -13,4 +13,5 @@ export const tasks = {
   selectPages,
   getPdfSummary,
   mergePdfs,
+  compress,
 };

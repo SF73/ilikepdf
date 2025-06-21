@@ -2,13 +2,14 @@ import { useState } from "react";
 import { FileMetadata } from "@/types/fileTypes";
 import { runTask } from "@/utils/workerClient";
 import { formatFileSize } from "@/utils/utils";
+import { v4 as uuidv4 } from 'uuid';
 
 export function usePdfFileManager() {
   const [files, setFiles] = useState<FileMetadata[]>([]);
 
   async function addFiles(newFiles: File[]) {
     const fileMetadataArray: FileMetadata[] = newFiles.map((file) => ({
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       fileHandle: file,
       pageRange: { start: null, end: null },
       pageCount: null,
@@ -23,7 +24,7 @@ export function usePdfFileManager() {
   
   async function replaceFiles(newFiles: File[]) {
     const fileMetadataArray: FileMetadata[] = newFiles.map((file) => ({
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       fileHandle: file,
       pageRange: { start: null, end: null },
       pageCount: null,

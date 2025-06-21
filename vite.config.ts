@@ -12,6 +12,9 @@ export default defineConfig({
     },
   },
   base: '/ilikepdf/',
+  preview:{
+    allowedHosts:["finot.ovh"]
+  },
   build: {
     target: 'esnext',
     rollupOptions: {

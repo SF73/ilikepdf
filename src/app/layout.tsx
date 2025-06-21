@@ -6,8 +6,8 @@ export function Layout() {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main className="w-full h-full flex flex-col p-6">
-        <SidebarTrigger />
+      <main className="w-screen h-screen flex flex-col p-4">
+        <SidebarTrigger/>
         <Outlet/>
       </main>
     </SidebarProvider>
