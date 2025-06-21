@@ -10,10 +10,11 @@ import {
     CardTitle,
   } from "@/components/ui/card"
 
+  import { formatFileSize } from "@/utils/utils";
 // import { useBlobUrl } from "@/hooks/useBlobUrl";
   
 interface PdfPreviewCardProps {
-    arrayBuffer: ArrayBuffer | null;
+    arrayBuffer: ArrayBuffer;
     blobName?: string | null;
     autoPreview?: boolean;
     mime?: string;
@@ -77,9 +78,9 @@ const PdfPreviewCard : React.FC<PdfPreviewCardProps>= ({
         <Card>
               <CardHeader>
                 <CardTitle>File ready</CardTitle>
-                    <CardDescription>{blobName}</CardDescription>
+                    <CardDescription>{blobName} &ndash; {formatFileSize(arrayBuffer.byteLength)}</CardDescription>
             </CardHeader>
-                <div className="flex flex-wrap gap-2 justify-end">
+                <div className="flex flex-wrap gap-2 justify-end px-4">
                     <Button
                         className="btn"
                         onClick={isPreviewVisible ? cleanupPreviewUrl : generatePreviewUrl}

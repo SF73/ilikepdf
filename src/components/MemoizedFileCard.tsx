@@ -74,7 +74,7 @@ export const MemoizedFileCard = React.memo(function FileCard({
             <Button onClick={(e) => {
                 e.stopPropagation();
                 onDelete();
-            }} size="icon" variant="destructive" className="absolute top-1 right-1 invisible group-hover:visible opacity-40 hover:opacity-100 transition duration-200">
+            }} size="icon" variant="destructive" className="absolute top-1 right-1 group-hover:opacity-70 opacity-40 hover:opacity-100 transition duration-200">
                 <X className="h-4 w-4" />
             </Button>)}
 
