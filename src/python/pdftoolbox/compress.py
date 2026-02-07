@@ -48,18 +48,24 @@ def get_image_info(doc, reportProgress = None) -> Dict[int, Dict[str, Any]]:
 def downsample_images(
     buffer: bytes,
     factor_limit: float = 2.0,
-    garbage: int = 0,
-    clean: bool = False,
-    deflate: bool = False,
-    use_objstms: int = 0,
-    reportProgress: Any = None
+    reportProgress: Any = None,
+    **save_options
 ) -> bytes:
     """
     Compress images in a PDF if they exceed the specified display-to-actual size ratio.
+    
+    Args:
+        buffer: PDF file content as bytes
+        factor_limit: Maximum ratio of actual to display size (default: 2.0)
+        reportProgress: Optional callback function for progress reporting
+        **save_options: PDF save options (garbage, clean, deflate, deflate_images, etc.)
+    
+    Returns:
+        Compressed PDF content as bytes
     """
 
     doc = pymupdf.Document(stream=buffer)
-    fix_xref(doc)
+    # fix_xref(doc)
     if reportProgress:
         reportProgress(0, f"Searching images in document")
     image_info = get_image_info(doc, reportProgress)
@@ -124,8 +130,8 @@ def downsample_images(
     
     if reportProgress:
         reportProgress(99, f"Cleaning up document")
-    print(garbage, deflate, use_objstms, clean)
-    docBytes =  doc.tobytes(deflate=deflate, garbage=garbage, use_objstms=use_objstms, clean=clean)
+    
+    docBytes = doc.tobytes(**save_options)
     doc.close()
     if reportProgress:
         reportProgress(100, f"Done")

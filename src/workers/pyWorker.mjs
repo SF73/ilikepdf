@@ -5,10 +5,14 @@ postMessage({ status: "starting" });
 const pyodide = await loadPyodide();
 pyodide.setStdout({ batched: (msg) => console.log(msg) });
 await pyodide.loadPackage("micropip");
-await pyodide.loadPackage("pymupdf");
+// await pyodide.loadPackage("pymupdf");
 const match = self.location.pathname.match(/\/[^/]*\//);
 const basePath = match ? match[0] : '/';
 const fullBaseUrl = self.location.origin + basePath;
+
+const micropip = pyodide.pyimport("micropip");
+await micropip.install(`${fullBaseUrl}/pyodide_packages/pymupdf-1.26.7-cp313-none-pyodide_2025_0_wasm32.whl`);
+
 
 const url = `${fullBaseUrl}/pyodide_packages/pdftoolbox.tar.gz?t=` + Date.now();
 const response = await fetch(url);

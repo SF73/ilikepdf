@@ -7,6 +7,9 @@ import PageComposer from '@/app/PageComposer';
 import { Home } from '@/app/Home';
 import { NotFound } from '@/app/NotFound';
 import Compress from '@/app/Compress';
+import SavePdf from '@/app/SavePdf';
+import RewriteImages from '@/app/RewriteImages';
+import ObjectInspector from '@/app/ObjectInspector';
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 function App() {
@@ -22,6 +25,9 @@ function App() {
           <Route path="extract-images" element={<ImageExtractor />} />
           <Route path="compose-pages" element={<PageComposer />} />
           <Route path="compress" element={<Compress />} />
+          <Route path="save-pdf" element={<SavePdf />} />
+          <Route path="rewrite-images" element={<RewriteImages />} />
+          <Route path="inspect-objects" element={<ObjectInspector />} />
           <Route path="*" element={<NotFound/>} />
         </Route>
       </Routes>

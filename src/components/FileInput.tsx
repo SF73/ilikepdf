@@ -36,6 +36,7 @@ const FileInput: React.FC<FileInputProps> =
 
              const files = Array.from(e.target.files);
              onFilesChange?.(files);
+             e.target.value = "";
         };
 
         const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
