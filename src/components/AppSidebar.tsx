@@ -1,6 +1,6 @@
 import { Sidebar, SidebarContent, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 import { NavLink } from "react-router";
-import { Combine, Images, FileStack, FileCog, Home, FileArchive, Save, Wand2} from "lucide-react";
+import { Combine, Images, FileStack, FileCog, Home, FileArchive, Save, Wand2, SearchCode} from "lucide-react";
 
 const items = [
   {
@@ -17,6 +17,11 @@ const items = [
     title: "Metadata edition",
     url: "metadata",
     icon: FileCog,
+  },
+  {
+    title: "Inspect PDF objects",
+    url: "inspect-objects",
+    icon: SearchCode,
   },
   {
     title: "Merge PDFs",

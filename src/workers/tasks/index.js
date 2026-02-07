@@ -8,12 +8,14 @@ import { mergePdfs } from "./mergePdf.js";
 import { compress } from "./compress.js";
 import { savePdf } from "./savePdf.js";
 import { rewriteImages } from "./rewriteImages.js";
+import { getPdfObjectSizes } from "./getPdfObjectSizes.js";
 export const tasks = {
   extractImages,
   getPdfMetadata,
   setPdfMetadata,
   selectPages,
   getPdfSummary,
+  getPdfObjectSizes,
   mergePdfs,
   compress,
   savePdf,
