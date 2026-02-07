@@ -28,7 +28,7 @@ def set_metadata(buffer, metadata):
         bytes: The PDF file content with updated metadata.
     """
     doc = pymupdf.Document(stream=buffer)
-    fix_xref(doc)
+    # fix_xref(doc)
     doc.set_metadata(metadata)
     updated_buffer = doc.write()
     doc.close()

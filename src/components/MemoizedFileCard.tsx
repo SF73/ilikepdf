@@ -64,7 +64,7 @@ export const MemoizedFileCard = React.memo(function FileCard({
                     <Skeleton className="h-[297px] w-[210px] rounded-lg shadow-md" />
                 )}
             </div>
-            <div className="text-xs text-gray-700 mt-1 text-center w-full">
+            <div className="text-xs text-gray-500 mt-1 text-center w-full">
                 <div title={file.fileHandle.name} className="font-semibold w-full truncate overflow-hidden text-ellipsis whitespace-nowrap">{file.fileHandle.name}</div>
                 <div>Pages: {file.pageCount ?? '-'}</div>
                 <div>Size: {file.sizeLabel ?? '-'}</div>
